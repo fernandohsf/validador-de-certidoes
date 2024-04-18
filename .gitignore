@@ -1,0 +1,7 @@
+.vscode
+__pycache__
+MunicipiosPR\__pycache__
+MunicipiosPR\Excel\__pycache__
+MunicipiosPR\Interacoes\__pycache__
+build
+dist
