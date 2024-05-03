@@ -5,10 +5,8 @@ import os
 def lancamentoControle(id, letraControle, valido, observacao, valorNota, numeroNota):
     data = datetime.strftime(datetime.today(), '%d/%m/%Y')
     global relatorioControle, planilhaControle, caminhoControle, arquivoControle, index
-    #caminhoControle = 'G:\\Meu Drive'
-    #arquivoControle = 'Cópia de Análise Manual de Documentos.xlsx'
-    caminhoControle = 'G:/.shortcut-targets-by-id/11ZtAUc2nGNGy2GThmaGwa0im9xgYZtx_/Contratação'
-    arquivoControle = 'Análise Manual de Documentos.xlsx'
+    caminhoControle = 'G:\\Meu Drive'
+    arquivoControle = 'Cópia de Análise Manual de Documentos.xlsx'
 
     relatorioControle = load_workbook(os.path.join(caminhoControle, arquivoControle))
     planilhaControle = relatorioControle['Disponível para Análise']
