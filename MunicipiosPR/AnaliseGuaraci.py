@@ -7,7 +7,7 @@ def validarGuaraciPR(conteudo):
         conteudo = re.split('\n', conteudo)
 
         for i, linha in enumerate(conteudo):
-            if('CADASTRO' in linha):
+            if('CPF/CNPJ' in linha):
                 cnpj = conteudo[i+1].strip()
                 
             if("VALIDADE ATÉ" in linha):

@@ -187,6 +187,6 @@ def validarAtividades(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nom
             linhaExcel +=1
             incluirNoExcel(linhaExcel, 0, documentoAvaliado)
 
-            lancamentoControle(id, 'M', valido, observacao, '', numeroNota)
+            #lancamentoControle(id, 'M', valido, observacao, '', numeroNota)
 
     fecharExcel()

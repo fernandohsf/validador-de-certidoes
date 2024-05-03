@@ -4,10 +4,11 @@ import os
 
 def lancamentoControle(id, letraControle, valido, observacao, valorNota, numeroNota):
     data = datetime.strftime(datetime.today(), '%d/%m/%Y')
-    #caminhoControle = 'G:/.shortcut-targets-by-id/11ZtAUc2nGNGy2GThmaGwa0im9xgYZtx_/Contratação'
     global relatorioControle, planilhaControle, caminhoControle, arquivoControle, index
-    caminhoControle = 'G:\\Meu Drive'
-    arquivoControle = 'Cópia de Análise Manual de Documentos.xlsx'
+    #caminhoControle = 'G:\\Meu Drive'
+    #arquivoControle = 'Cópia de Análise Manual de Documentos.xlsx'
+    caminhoControle = 'G:/.shortcut-targets-by-id/11ZtAUc2nGNGy2GThmaGwa0im9xgYZtx_/Contratação'
+    arquivoControle = 'Análise Manual de Documentos.xlsx'
 
     relatorioControle = load_workbook(os.path.join(caminhoControle, arquivoControle))
     planilhaControle = relatorioControle['Disponível para Análise']
@@ -24,6 +25,8 @@ def lancamentoControle(id, letraControle, valido, observacao, valorNota, numeroN
     if (letraControle == 'L'):
         planilhaControle[letraControle + str(index)] = valorNota
         planilhaControle[f'Z{index}'] = numeroNota
+        if (observacao != ''):
+            planilhaControle[f'P{index}'].value = 'Inapto'
     elif(letraControle == 'M'):
         if(planilhaControle[f'Z{index}'].value != ''):
             if(planilhaControle[f'Z{index}'].value != str(numeroNota)):
