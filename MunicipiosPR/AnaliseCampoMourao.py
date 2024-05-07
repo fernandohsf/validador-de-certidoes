@@ -8,6 +8,8 @@ def validarCampoMouraoPR(conteudo):
     if('MUNICIPAL DE CAMPO MOURÃO' in conteudo and not('Documento Auxiliar da NFS-e' in conteudo)):
         conteudo = re.sub('\xa0', ' ', conteudo)
         conteudo = re.split('\n', conteudo)
+        cnpj = '-'
+        dataValidade = '-'
 
         for linha in conteudo:
             if('CPF:' in linha or 'CNPJ:' in linha):
@@ -15,11 +17,17 @@ def validarCampoMouraoPR(conteudo):
                 
             if('Validade:' in linha):
                 dataValidade = re.split(': ', linha)[-1].strip()
-                dataValidade = datetime.strptime(dataValidade,'%d/%m/%Y')
+                try:
+                    dataValidade = datetime.strptime(dataValidade,'%d/%m/%Y')
+                except:
+                    dataValidade = '-'
 
             if('CAMPO MOURÃO,' in linha):
                 dataValidade = re.split(', ', linha)[-1].strip()
-                dataValidade = datetime.strptime(dataValidade,'%d de %B de %Y.') + timedelta(days=30)
+                try:
+                    dataValidade = datetime.strptime(dataValidade,'%d de %B de %Y.') + timedelta(days=30)
+                except:
+                    dataValidade = '-'
                 
         return cnpj,dataValidade
     return '-', '-'

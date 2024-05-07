@@ -8,6 +8,8 @@ def validarMarechalCandidoRondonPR(conteudo):
     if("MUNICÍPIO DE MARECHAL CÂNDIDO RONDON" in conteudo and not('Documento Auxiliar da NFS-e' in conteudo)):
         conteudo = re.sub('\xa0', ' ', conteudo)
         conteudo = re.split('\n', conteudo)
+        cnpj = '-'
+        dataValidade = '-'
 
         for i, linha in enumerate(conteudo):
             if('CNPJ' in linha):
@@ -15,7 +17,10 @@ def validarMarechalCandidoRondonPR(conteudo):
                 
             if("MARECHAL CÂNDIDO RONDON," in linha):
                 dataValidade = linha.split(', ')[-1].replace('.', '').strip()
-                dataValidade = datetime.strptime(dataValidade,'%d de %B de %Y') + timedelta(days=60)
+                try:
+                    dataValidade = datetime.strptime(dataValidade,'%d de %B de %Y') + timedelta(days=60)
+                except:
+                    dataValidade = '-'
         
         return cnpj, dataValidade
     return '-', '-'

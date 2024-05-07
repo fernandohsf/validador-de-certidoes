@@ -8,14 +8,19 @@ def validarPontaGrossaPR(conteudo):
     if('MUNICIPAL DE PONTA GROSSA' in conteudo and not('Documento Auxiliar da NFS-e' in conteudo)):
         conteudo = re.sub('\xa0', ' ', conteudo)
         conteudo = re.split('\n', conteudo)
+        cnpj = '-'
+        dataValidade = '-'
 
-        for i, linha in enumerate(conteudo):
+        for linha in conteudo:
             if('CNPJ/CPF:' in linha):
                 cnpj = linha.split(': ')[-1].strip()
                 
             if('PONTA GROSSA,' in linha):
                 dataValidade = linha.split(', ')[-1].strip()
-                dataValidade = datetime.strptime(dataValidade,'%d de %B de %Y') + timedelta(days=60)
+                try:
+                    dataValidade = datetime.strptime(dataValidade,'%d de %B de %Y') + timedelta(days=60)
+                except:
+                    dataValidade = '-'
                 
         return cnpj, dataValidade
     return '-', '-'

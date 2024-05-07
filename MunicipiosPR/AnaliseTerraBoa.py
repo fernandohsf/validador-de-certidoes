@@ -5,6 +5,8 @@ def validarTerraBoaPR(conteudo):
     if("MUNICIPIO DE TERRA BOA" in conteudo and not('Documento Auxiliar da NFS-e' in conteudo)):
         conteudo = re.sub('\xa0', ' ', conteudo)
         conteudo = re.split('\n', conteudo)
+        cnpj = '-'
+        dataValidade = '-'
 
         for i, linha in enumerate(conteudo):
             if('CNPJ/CPF' in linha):
@@ -12,7 +14,10 @@ def validarTerraBoaPR(conteudo):
                 
             if("VALIDADE ATÉ" in linha):
                 dataValidade = linha.split(' ')[-1].replace('.', '').strip()
-                dataValidade = datetime.strptime(dataValidade,'%d/%m/%Y')
+                try:
+                    dataValidade = datetime.strptime(dataValidade,'%d/%m/%Y')
+                except:
+                    dataValidade = '-'
                 
         return cnpj, dataValidade
     return '-', '-'

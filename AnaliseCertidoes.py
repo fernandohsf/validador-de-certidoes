@@ -9,7 +9,7 @@ from AnaliseCNDM_PR import validarMunicipiosPR
 from AnaliseRelatorioAtividades import validarAtividades
 from CertidoesInvalidas import verificarInvalidos
 
-diretorioAvaliacao = 'G:/Drives compartilhados/PROJETOS/Contratos/01.CONVENIAR/21 - Automação de análise jurídica/Notas e certidões'
+diretorioAvaliacao = 'G:\\Drives compartilhados\\PROJETOS\\Contratos\\01.CONVENIAR\\21 - Automação de análise jurídica/Notas e certidões'
 #diretorioAvaliacao = 'D:\\Downloads'
 diretorioRelatorio = 'G:\\Drives compartilhados\\PROJETOS\\Contratos\\01.CONVENIAR\\21 - Automação de análise jurídica\\Relatórios de análise'
 #diretorioRelatorio = 'D:\\Downloads'

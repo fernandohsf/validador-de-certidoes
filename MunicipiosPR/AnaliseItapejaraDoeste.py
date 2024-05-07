@@ -8,6 +8,8 @@ def validarItapejaraDoestePR(conteudo):
     if("MUNICIPIO.: Itapejara d'Oeste" in conteudo and not('Documento Auxiliar da NFS-e' in conteudo)):
         conteudo = re.sub('\xa0', ' ', conteudo)
         conteudo = re.split('\n', conteudo)
+        cnpj = '-'
+        dataValidade = '-'
 
         for linha in conteudo:
             if('CNPJ/CPF.' in linha):
@@ -15,7 +17,10 @@ def validarItapejaraDoestePR(conteudo):
                 
             if("Emitida" in linha):
                 dataValidade = linha.split(' ')[-1].replace('.', '').strip()
-                dataValidade = datetime.strptime(dataValidade,'%d/%m/%Y') + timedelta(days=60)
+                try:
+                    dataValidade = datetime.strptime(dataValidade,'%d/%m/%Y') + timedelta(days=60)
+                except:
+                    dataValidade = '-'
                 
         return cnpj, dataValidade
     return '-', '-'

@@ -8,6 +8,8 @@ def validarCascavelPR(conteudo):
     if('MUNICIPAL DE CASCAVEL' in conteudo and not('Documento Auxiliar da NFS-e' in conteudo)):
         conteudo = re.sub('\xa0', ' ', conteudo)
         conteudo = re.split('\n', conteudo)
+        cnpj = '-'
+        dataValidade = '-'
 
         for i, linha in enumerate(conteudo):
             if('CNPJ/CPF:' in linha):
@@ -15,7 +17,10 @@ def validarCascavelPR(conteudo):
             
             if('Cascavel,' in linha):
                 dataValidade = linha.split(',')[-1].strip()
-                dataValidade = datetime.strptime(dataValidade,'%d de %B de %Y.') + timedelta(days=90)
+                try:
+                    dataValidade = datetime.strptime(dataValidade,'%d de %B de %Y.') + timedelta(days=90)
+                except:
+                    dataValidade = '-'
                 
         return cnpj, dataValidade
     return '-', '-'

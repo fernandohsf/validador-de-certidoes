@@ -6,6 +6,8 @@ def validarPauloFrontinPR(conteudo):
     if("MUNICIPAL DE PAULO FRONTIN" in conteudo and not('Documento Auxiliar da NFS-e' in conteudo)):
         conteudo = re.sub('\xa0', ' ', conteudo)
         conteudo = re.split('\n', conteudo)
+        cnpj = '-'
+        dataValidade = '-'
 
         for i, linha in enumerate(conteudo):
             if('CNPJ:' in linha):
@@ -14,7 +16,10 @@ def validarPauloFrontinPR(conteudo):
 
             if('Validade' in linha):
                 dataValidade = conteudo[i+3].strip()
-                dataValidade = datetime.strptime(dataValidade,'%d/%m/%Y')
+                try:
+                    dataValidade = datetime.strptime(dataValidade,'%d/%m/%Y')
+                except:
+                    dataValidade = '-'
                 
         return cnpj, dataValidade 
     return '-', '-'

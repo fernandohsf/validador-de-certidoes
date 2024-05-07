@@ -5,6 +5,8 @@ def validarCruzeiroDoOestePR(conteudo):
     if('MUNICIPIO DE CRUZEIRO DO OESTE' in conteudo and not('Documento Auxiliar da NFS-e' in conteudo)):
         conteudo = re.sub('\xa0', ' ', conteudo)
         conteudo = re.split('\n', conteudo)
+        cnpj = '-'
+        dataValidade = '-'
 
         for i, linha in enumerate(conteudo):
             if('CPF/CNPJ' in linha):
@@ -17,7 +19,10 @@ def validarCruzeiroDoOestePR(conteudo):
                 
             if('VALIDADE ATÉ' in linha):
                 dataValidade = re.split('ATÉ ', linha)[-1].strip()
-                dataValidade = datetime.strptime(dataValidade,'%d/%m/%Y')
+                try:
+                    dataValidade = datetime.strptime(dataValidade,'%d/%m/%Y')
+                except:
+                    dataValidade = '-'
                 
         return cnpj, dataValidade
     return '-', '-'

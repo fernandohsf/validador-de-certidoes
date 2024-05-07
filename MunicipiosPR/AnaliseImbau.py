@@ -5,6 +5,8 @@ def validarImbauPR(conteudo):
     if('MUNICIPIO DE IMBAU' in conteudo and not('Documento Auxiliar da NFS-e' in conteudo)):
         conteudo = re.sub('\xa0', ' ', conteudo)
         conteudo = re.split('\n', conteudo)
+        cnpj = '-'
+        dataValidade = '-'
 
         for linha in conteudo:
             if('CNPJ' in linha):
@@ -13,7 +15,10 @@ def validarImbauPR(conteudo):
                 
             if('VALIDADE ATÉ' in linha):
                 dataValidade = re.split(' ATÉ ', linha)[-1]
-                dataValidade = datetime.strptime(dataValidade,'%d/%m/%Y')
+                try:
+                    dataValidade = datetime.strptime(dataValidade,'%d/%m/%Y')
+                except:
+                    dataValidade = '-'
 
         return cnpj, dataValidade
     return '-', '-'

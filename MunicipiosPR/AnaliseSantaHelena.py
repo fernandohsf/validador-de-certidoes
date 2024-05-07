@@ -8,6 +8,8 @@ def validarSanteHelenaPR(conteudo):
     if('MUNICIPIO DE SANTA HELENA' in conteudo and not('Documento Auxiliar da NFS-e' in conteudo)):
         conteudo = re.sub('\xa0', ' ', conteudo)
         conteudo = re.split('\n', conteudo)
+        cnpj = '-'
+        dataValidade = '-'
 
         for i, linha in enumerate(conteudo):
             if('CNPJ/CPF:' in linha):
@@ -15,7 +17,10 @@ def validarSanteHelenaPR(conteudo):
                 
             if('SANTA HELENA - PR,' in linha):
                 dataValidade = re.split(',', linha)[-1].strip()
-                dataValidade = datetime.strptime(dataValidade,'%d de %B de %Y') + timedelta(days=60)
+                try:
+                    dataValidade = datetime.strptime(dataValidade,'%d de %B de %Y') + timedelta(days=60)
+                except:
+                    dataValidade = '-'
 
         return cnpj, dataValidade
     return '-', '-'
