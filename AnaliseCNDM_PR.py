@@ -1,7 +1,7 @@
-from datetime import datetime
 import os
 import fitz
 import time
+from datetime import datetime
 from MunicipiosPR.Interacoes.validade import verificarDataValidade
 from MunicipiosPR.Excel.ExcelCertidoes import criarExcel, incluirNoExcel, fecharExcel
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle

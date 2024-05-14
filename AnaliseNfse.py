@@ -70,6 +70,7 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                             valido = 'Não'
                             tomador = '-'
                             observacao = 'NFS-e sem tomardor ou tomador incorreto. '
+                            
                     if('TOMADOR DO SERVIÇO NÃO IDENTIFICADO NA NFS-e' in linha):
                         apto = 'Inapto'
                         tomador = '-'

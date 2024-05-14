@@ -1,4 +1,3 @@
-import time
 from datetime import date
 from AnaliseNfse import validarNFSE
 from AnaliseCNDU_Pj import validarCNDU
