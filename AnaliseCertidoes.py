@@ -71,5 +71,5 @@ nomePlanilha = 'Não-lidos'
 verificarInvalidos(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha)
 
 print('Relatório finalizado. \nFim da execução.')
-time.sleep(2)
- 
+
+input('Pessione enter para encerrar...')
