@@ -1,3 +1,6 @@
+import os
+import csv
+import sys
 from datetime import date
 from AnaliseNfse import validarNFSE
 from AnaliseCNDU_Pj import validarCNDU
@@ -7,6 +10,22 @@ from AnaliseCNDE_PR_Pj import validarCNDE_PR
 from AnaliseCNDM_PR import validarMunicipiosPR
 from AnaliseRelatorioAtividades import validarAtividades
 from CertidoesInvalidas import verificarInvalidos
+
+def atualizarBase():
+    Base = os.path.abspath(sys.argv[0])
+    caminhoBase = os.path.dirname(Base)
+    baseCadastros = os.path.join(caminhoBase,'CadastroProfessorFormador.csv')
+    dadosBase = {}
+
+    with open(baseCadastros, mode='r', newline='', encoding='utf-8') as arquivo_csv:
+        leitor_csv = csv.DictReader(arquivo_csv)
+        
+        for linha in leitor_csv:
+            id_professor = linha['ID']
+            dadosBase[id_professor] = linha
+    return dadosBase
+
+base = atualizarBase()
 
 diretorioAvaliacao = 'G:\\Drives compartilhados\\PROJETOS\\Contratos\\01.CONVENIAR\\21 - Automação de análise jurídica/Notas e certidões'
 #diretorioAvaliacao = 'D:\\Downloads'
@@ -28,7 +47,7 @@ for mesPasta in mes:
 print('Iniciando verificação de NFSE (Nota fiscal de serviço eletrônica). \nAguarde...')
 nomeRelatorio = 'Relatório de Validação NFSE'
 nomePlanilha = 'NFSE'
-validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha)
+validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha, base)
 
 print('Verificação de NFSE finalizada. \nIniciando verficação de CNDU (Certidão negativa de débitos da União). \nAguarde...')
 nomeRelatorio = 'Relatório de Validação CNDU'
@@ -62,7 +81,7 @@ validarMunicipiosPR(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomeP
 print('Verificação de CNDM finalizada. \nIniciando verificação de relatórios de atividades. \nAguarde...')
 nomeRelatorio = 'Relatório de Validação de Atividades'
 nomePlanilha = 'Atividades'
-validarAtividades(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha)
+validarAtividades(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha, base)
 
 print('Verificação de relatórios de atividades finalizada. \nGerando relatório de documentos não verificados. \nAguarde...')
 nomeRelatorio = 'Relatório de documento não avaliados'

@@ -7,7 +7,7 @@ from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
 from MunicipiosPR.Excel.ExcelNota import criarExcel, incluirNoExcel, fecharExcel
 from MunicipiosPR.Interacoes.identificacao import identificacao
 
-def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha):
+def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBase):
     data = datetime.today()
     diretorioRelatorio = diretorioRelatorio
     nomeRelatorio = nomeRelatorio
@@ -21,6 +21,7 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
 
         for arquivo in os.listdir(pasta):
             apto = dataModificacao = observacao = valorNota = cnpj = tomador = cnae = valorNota = chaveAcesso = numeroNota = '-'
+            cnpjBase = None
 
             if not(arquivo.endswith('.pdf') or arquivo.endswith('.PDF')):
                 continue
@@ -46,6 +47,11 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                 observador = 0
                 conteudo = re.sub('\xa0', ' ', conteudo)
                 conteudo = re.split('\n', conteudo)
+
+                for linha in dadosBase.values():
+                    if(int(linha.get('ID')) == id):
+                        cnpjBase = linha.get('CNPJ')
+                        break
                 
                 for i, linha in enumerate(conteudo):
                     if ('Chave de Acesso da NFS-e' in linha):
@@ -97,17 +103,22 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                        or 'ATIVIDADES DESCRITAS NA CLÁUSULA 1º' in linha.upper()
                        or 'ATIVIDADES DESCRITAS NA CLAUSULA 1º' in linha.upper()):
                         observador += 1
-                    if('PERÍODO' in linha.upper() 
-                       or 'PERIODO' in linha.upper() 
-                       or 'COMPETÊNCIA' in linha.upper() 
+                    if('PERÍODO' in linha.upper()
+                       or 'PERIODO' in linha.upper()
+                       or 'COMPETÊNCIA' in linha.upper()
                        or 'COMPETENCIA' in linha.upper()):
                         observador += 1
-                    if(('AGÊNCIA' in linha.upper() and 'CONTA' in linha.upper()) 
-                       or ('AGENCIA' in linha.upper() and 'CONTA' in linha.upper()) 
+                    if(('AGÊNCIA' in linha.upper() and 'CONTA' in linha.upper())
+                       or ('AGENCIA' in linha.upper() and 'CONTA' in linha.upper())
                         or ('AG:' in linha.upper() and 'CONTA' in linha.upper())):
                         observador += 1 
 
                 if(cnpj == ''):
+                    observacao = observacao + 'Verificar CNPJ na NFS-e. '
+
+                if(cnpj != cnpjBase):
+                    apto = 'Inapto'
+                    valido = 'Não'
                     observacao = observacao + 'Verificar CNPJ na NFS-e. '
 
                 if(observador < 3):

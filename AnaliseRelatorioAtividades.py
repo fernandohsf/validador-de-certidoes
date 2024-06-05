@@ -1,37 +1,20 @@
 import re
 import os
 import time
-import csv
 import locale
 import calendar
-import sys
 import fitz
 from datetime import datetime
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
 from MunicipiosPR.Excel.ExcelAtividades import criarExcel, incluirNoExcel, fecharExcel
 from MunicipiosPR.Interacoes.identificacao import identificacao
 
-def atualizarBase():
-    Base = os.path.abspath(sys.argv[0])
-    caminhoBase = os.path.dirname(Base)
-    baseCadastros = os.path.join(caminhoBase,'CadastroProfessorFormador.csv')
-    global dadosBase
-    dadosBase = {}
-
-    with open(baseCadastros, mode='r', newline='', encoding='utf-8') as arquivo_csv:
-        leitor_csv = csv.DictReader(arquivo_csv)
-        
-        for linha in leitor_csv:
-            id_professor = linha['ID']
-            dadosBase[id_professor] = linha
-
-def validarAtividades(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha):
+def validarAtividades(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBase):
     locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
     data = datetime.today()
     diretorioRelatorio = diretorioRelatorio
     nomeRelatorio = nomeRelatorio
     nomePlanilha = nomePlanilha
-    atualizarBase()
     criarExcel(f'{diretorioRelatorio}/{nomeRelatorio} - {data.strftime("%d-%m-%Y(%Hh %Mm %Ss)")}.xlsx', nomePlanilha)
 
     linhaExcel = 0
