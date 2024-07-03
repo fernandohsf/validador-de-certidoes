@@ -2,6 +2,7 @@ import re
 import os
 import time
 import fitz
+import calendar
 from datetime import datetime
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
 from MunicipiosPR.Excel.ExcelNota import criarExcel, incluirNoExcel, fecharExcel
@@ -101,13 +102,37 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                        or 'ATIVIDADES DESCRITAS NA CLAUSULA PRIMEIRA DO' in linha.upper()
                        or 'ATIVIDADES DESCRITAS NA CLÁUSULA\nPRIMEIRA DO CONTRATO' in linha.upper()
                        or 'ATIVIDADES DESCRITAS NA CLÁUSULA 1º' in linha.upper()
-                       or 'ATIVIDADES DESCRITAS NA CLAUSULA 1º' in linha.upper()):
+                       or 'ATIVIDADES DESCRITAS NA CLAUSULA 1º' in linha.upper()
+                       or 'DESCRITAS NA CLÁUSULA PRIMEIRA DO CONTRATO' in linha.upper()):
                         observador += 1
-                    if('PERÍODO' in linha.upper()
-                       or 'PERIODO' in linha.upper()
-                       or 'COMPETÊNCIA' in linha.upper()
-                       or 'COMPETENCIA' in linha.upper()):
-                        observador += 1
+                    if('PERÍODO DE REALIZAÇÃO' in linha.upper()
+                       or 'PERIODO DE REALIZAÇÃO' in linha.upper()
+                       or 'COMPETÊNCIA:' in linha.upper()
+                       or 'COMPETENCIA:' in linha.upper()):
+                        linha = linha.upper()
+                        periodo = linha.split('AÇÃO: ')[-1].split('.')[0].split(',')[0].upper()
+                        periodo = periodo.replace(' ', '')
+                        mes = data.month - 1
+                        ano = data.year
+
+                        if(mes == 0):
+                            mes = 12
+                            ano -=1
+                        mesAnterior = datetime(ano, mes, 1)
+                        finalMesAnterior = datetime(ano, mes, calendar.monthrange(ano, mes)[1])
+
+                        if(mesAnterior.strftime('%BDE%Y').upper() in periodo
+                        or mesAnterior.strftime('%B%Y').upper() in periodo
+                        or f'{mesAnterior.strftime("%d/%m/%Y")}A{finalMesAnterior.strftime("%d/%m/%Y")}' in periodo
+                        or f'{mesAnterior.strftime("%d/%m/%Y")}À{finalMesAnterior.strftime("%d/%m/%Y")}' in periodo
+                        or f'{mesAnterior.strftime("%d/%m/%Y")}Á{finalMesAnterior.strftime("%d/%m/%Y")}' in periodo
+                        or f'{mesAnterior.strftime("%d/%m/%Y")}ATÉ{finalMesAnterior.strftime("%d/%m/%Y")}' in periodo
+                        or f'{mesAnterior.strftime("%d/%m")}A{finalMesAnterior.strftime("%d/%mDE%Y")}' in periodo):
+                            observador += 1
+                        else:
+                            apto = 'Inapto'
+                            valido = 'Não'
+                            observacao = observacao + 'Verificar período de realização de descrição da NFS-e. '
                     if(('AGÊNCIA' in linha.upper() and 'CONTA' in linha.upper())
                        or ('AGENCIA' in linha.upper() and 'CONTA' in linha.upper())
                         or ('AG:' in linha.upper() and 'CONTA' in linha.upper())):
@@ -124,7 +149,7 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                 if(observador < 3):
                    apto = 'Inapto'
                    valido = 'Não'
-                   observacao = 'Verificar a descrição do serviço na NFSE. '
+                   observacao = observacao + 'Verificar a descrição do serviço na NFSE. '
 
                 dataModificacao = time.strftime('%d/%m/%Y', time.localtime(os.path.getmtime(os.path.join(pasta, arquivo))))
 
@@ -154,6 +179,6 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                 linhaExcel +=1
                 incluirNoExcel(linhaExcel, 0, documentoAvaliado)
 
-                lancamentoControle(id, 'L', valido, observacao, valorNota, numeroNota)
+                #lancamentoControle(id, 'L', valido, observacao, valorNota, numeroNota)
 
     fecharExcel()
