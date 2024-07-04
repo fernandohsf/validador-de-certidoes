@@ -45,7 +45,7 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                 apto = 'Apto'
                 observacao = ''
                 valido = 'Sim'
-                observador = 0
+                observadorClausula = observadorPeriodo = observadorConta = 0
                 conteudo = re.sub('\xa0', ' ', conteudo)
                 conteudo = re.split('\n', conteudo)
 
@@ -98,15 +98,19 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                             valido = 'Não'
                             observacao = observacao + 'Verificar valor da NFS-e. '
 
-                    if('ATIVIDADES DESCRITAS NA CLÁUSULA PRIMEIRA DO' in linha.upper() 
-                       or 'ATIVIDADES DESCRITAS NA CLAUSULA PRIMEIRA DO' in linha.upper()
+                    if('ATIVIDADES DESCRITAS NA CLÁUSULA PRIMEIRA D' in linha.upper() 
+                       or 'ATIVIDADES DESCRITAS NA CLAUSULA PRIMEIRA D' in linha.upper()
                        or 'ATIVIDADES DESCRITAS NA CLÁUSULA\nPRIMEIRA DO CONTRATO' in linha.upper()
                        or 'ATIVIDADES DESCRITAS NA CLÁUSULA 1º' in linha.upper()
                        or 'ATIVIDADES DESCRITAS NA CLAUSULA 1º' in linha.upper()
-                       or 'DESCRITAS NA CLÁUSULA PRIMEIRA DO CONTRATO' in linha.upper()):
-                        observador += 1
+                       or 'DESCRITAS NA CLÁUSULA PRIMEIRA DO CONTRATO' in linha.upper()
+                       or 'DESCRITAS NA CLAUSULA PRIMEIRA DO CONTRATO' in linha.upper()
+                       or 'DESCRITO NA CLAUSULA PRIMEIRA DO CONTRATO' in linha.upper()):
+                        observadorClausula += 1
+
                     if('PERÍODO DE REALIZAÇÃO' in linha.upper()
                        or 'PERIODO DE REALIZAÇÃO' in linha.upper()
+                       or 'PERIODO D REALIZAÇÃO' in linha.upper()
                        or 'COMPETÊNCIA:' in linha.upper()
                        or 'COMPETENCIA:' in linha.upper()):
                         linha = linha.upper()
@@ -128,15 +132,13 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                         or f'{mesAnterior.strftime("%d/%m/%Y")}Á{finalMesAnterior.strftime("%d/%m/%Y")}' in periodo
                         or f'{mesAnterior.strftime("%d/%m/%Y")}ATÉ{finalMesAnterior.strftime("%d/%m/%Y")}' in periodo
                         or f'{mesAnterior.strftime("%d/%m")}A{finalMesAnterior.strftime("%d/%mDE%Y")}' in periodo):
-                            observador += 1
-                        else:
-                            apto = 'Inapto'
-                            valido = 'Não'
-                            observacao = observacao + 'Verificar período de realização de descrição da NFS-e. '
-                    if(('AGÊNCIA' in linha.upper() and 'CONTA' in linha.upper())
-                       or ('AGENCIA' in linha.upper() and 'CONTA' in linha.upper())
-                        or ('AG:' in linha.upper() and 'CONTA' in linha.upper())):
-                        observador += 1 
+                            observadorPeriodo += 1
+
+                    if('AGÊNCIA' in linha.upper() or 'AGENCIA' in linha.upper() or 'AG:' in linha.upper()):
+                        conta = conteudo[i:i+3]
+                        for linha2 in conta:
+                            if('CONTA' in linha2.upper()):
+                                observadorConta += 1 
 
                 if(cnpj == ''):
                     observacao = observacao + 'Verificar CNPJ na NFS-e. '
@@ -146,10 +148,20 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                     valido = 'Não'
                     observacao = observacao + 'Verificar CNPJ na NFS-e. '
 
-                if(observador < 3):
+                if(observadorClausula == 0):
                    apto = 'Inapto'
                    valido = 'Não'
-                   observacao = observacao + 'Verificar a descrição do serviço na NFSE. '
+                   observacao = observacao + 'Verificar a referência a cláusula do contrato na descrição da NFSE. '
+                
+                if(observadorPeriodo == 0):
+                   apto = 'Inapto'
+                   valido = 'Não'
+                   observacao = observacao + 'Verificar o período de realização na descrição da NFS-e.'
+
+                if(observadorConta == 0):
+                   apto = 'Inapto'
+                   valido = 'Não'
+                   observacao = observacao + 'Verificar a agência e conta na descrição da NFS-e.'
 
                 dataModificacao = time.strftime('%d/%m/%Y', time.localtime(os.path.getmtime(os.path.join(pasta, arquivo))))
 
@@ -179,6 +191,6 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                 linhaExcel +=1
                 incluirNoExcel(linhaExcel, 0, documentoAvaliado)
 
-                #lancamentoControle(id, 'L', valido, observacao, valorNota, numeroNota)
+                lancamentoControle(id, 'L', valido, observacao, valorNota, numeroNota)
 
     fecharExcel()
