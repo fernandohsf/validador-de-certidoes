@@ -81,6 +81,7 @@ def validarMunicipiosPR(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, n
         'MunicipiosPR.AnaliseMatinhos',
 	    'MunicipiosPR.AnaliseNovaLondrina',
 	    'MunicipiosPR.AnaliseNovaOlimpia',
+        'MunicipiosPR.AnaliseNovasLaranjeiras',
         'MunicipiosPR.AnaliseOuroVerdeDoOeste',
         'MunicipiosPR.AnaliseParaisoDoNorte',
         'MunicipiosPR.AnaliseParanagua',
@@ -111,6 +112,7 @@ def validarMunicipiosPR(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, n
     for pastas in os.listdir(diretorioAvaliacao):
         pasta = os.path.join(diretorioAvaliacao, pastas)
         id, nomeEmissor = identificacao(pastas)
+        print (id)
 
         for arquivo in os.listdir(pasta):
             ### LIMPANDO VARIÁVEIS PARA O PRÓXIMO ARQUIVO
@@ -181,8 +183,9 @@ def validarMunicipiosPR(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, n
                     observacao
                 )
                 linhaExcel +=1
+
                 incluirNoExcel(linhaExcel, 0, documentoAvaliado)
 
-                lancamentoControle(id, 'H', valido, observacao, '', '')
+                #lancamentoControle(id, 'H', valido, observacao, '', '')
 
     fecharExcel()

@@ -191,6 +191,6 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                 linhaExcel +=1
                 incluirNoExcel(linhaExcel, 0, documentoAvaliado)
 
-                lancamentoControle(id, 'L', valido, observacao, valorNota, numeroNota)
+                #lancamentoControle(id, 'L', valido, observacao, valorNota, numeroNota)
 
     fecharExcel()

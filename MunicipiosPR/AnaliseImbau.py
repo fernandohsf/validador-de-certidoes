@@ -9,9 +9,8 @@ def validarImbauPR(conteudo):
         dataValidade = '-'
 
         for linha in conteudo:
-            if('CNPJ' in linha):
-                cnpj = re.split(',', linha)[1]
-                cnpj = re.split(' ', cnpj)[-1]
+            if('CNPJ/MF' in linha):
+                cnpj = re.split(':', linha)[-1].strip()
                 
             if('VALIDADE ATÉ' in linha):
                 dataValidade = re.split(' ATÉ ', linha)[-1]
@@ -21,4 +20,5 @@ def validarImbauPR(conteudo):
                     dataValidade = '-'
 
         return cnpj, dataValidade
+    
     return '-', '-'

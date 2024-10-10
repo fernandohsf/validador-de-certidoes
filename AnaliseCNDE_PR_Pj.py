@@ -97,6 +97,6 @@ def validarCNDE_PR(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePl
                 linhaExcel +=1
                 incluirNoExcel(linhaExcel, 0, documentoAvaliado)
 
-                lancamentoControle(id, 'N', valido, observacao, '', '')
+                #lancamentoControle(id, 'N', valido, observacao, '', '')
 
     fecharExcel()
