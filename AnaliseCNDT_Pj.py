@@ -96,6 +96,6 @@ def validarCNDT(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                 linhaExcel +=1
                 incluirNoExcel(linhaExcel, 0, documentoAvaliado)
 
-                #lancamentoControle(id, 'J', valido, observacao, '', '')
+                lancamentoControle(id, 'J', valido, observacao, '', '')
 
     fecharExcel()

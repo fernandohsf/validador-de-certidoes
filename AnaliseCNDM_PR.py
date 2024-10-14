@@ -187,6 +187,6 @@ def validarMunicipiosPR(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, n
 
                 incluirNoExcel(linhaExcel, 0, documentoAvaliado)
 
-                #lancamentoControle(id, 'H', valido, observacao, '', '')
+                lancamentoControle(id, 'H', valido, observacao, '', '')
 
     fecharExcel()

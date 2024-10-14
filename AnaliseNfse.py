@@ -72,17 +72,26 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                         tomador = conteudo[i+2].strip()
                         if(tomador == '15.513.690/0001-50'):
                             tomador = 'FAPEC'
+                            endereco = (conteudo[i+12].strip(), conteudo[i+14].strip(), conteudo[i+16].strip())
+                            enderecos_validos = [
+                                ('GOIAS, 587, JARDIM DOS ESTADOS', 'Campo Grande - MS', '79020-100'),
+                                ('R GOIAS, 587, JARDIM DOS ESTADOS', 'Campo Grande - MS', '79020-100')
+                            ]
+
+                            if endereco not in enderecos_validos:
+                                observacao += 'Endereço do tomador incorreto. '
+
                         else:
                             apto = 'Inapto'
                             valido = 'Não'
                             tomador = '-'
-                            observacao = 'NFS-e sem tomardor ou tomador incorreto. '
+                            observacao = observacao + 'NFS-e sem tomador ou tomador incorreto. '
                             
                     if('TOMADOR DO SERVIÇO NÃO IDENTIFICADO NA NFS-e' in linha):
                         apto = 'Inapto'
                         tomador = '-'
                         valido = 'Não'
-                        observacao = 'NFS-e sem tomardor ou tomador incorreto. '
+                        observacao = observacao + 'NFS-e sem tomador ou tomador incorreto. '
 
                     if('Código de Tributação Nacional' in linha):
                         cnae = conteudo[i+1]
@@ -191,6 +200,6 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                 linhaExcel +=1
                 incluirNoExcel(linhaExcel, 0, documentoAvaliado)
 
-                #lancamentoControle(id, 'L', valido, observacao, valorNota, numeroNota)
+                lancamentoControle(id, 'L', valido, observacao, valorNota, numeroNota)
 
     fecharExcel()

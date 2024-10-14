@@ -100,6 +100,6 @@ def validarCRF(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanil
                 linhaExcel +=1
                 incluirNoExcel(linhaExcel, 0, documentoAvaliado)
 
-                #lancamentoControle(id, 'K', valido, observacao ,'', '')
+                lancamentoControle(id, 'K', valido, observacao ,'', '')
 
     fecharExcel()

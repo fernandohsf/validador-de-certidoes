@@ -27,10 +27,10 @@ def atualizarBase():
 
 base = atualizarBase()
 
-#diretorioAvaliacao = 'G:\\Drives compartilhados\\PROJETOS\\Contratos\\01.CONVENIAR\\21 - Automação de análise jurídica\\Notas e certidões'
-diretorioAvaliacao = 'D:\\Downloads'
-#diretorioRelatorio = 'G:\\Drives compartilhados\\PROJETOS\\Contratos\\01.CONVENIAR\\21 - Automação de análise jurídica\\Relatórios de análise'
-diretorioRelatorio = 'D:\\Downloads'
+diretorioAvaliacao = 'G:\\Drives compartilhados\\PROJETOS\\Contratos\\01.CONVENIAR\\21 - Automação de análise jurídica\\Notas e certidões'
+#diretorioAvaliacao = 'D:\\Downloads'
+diretorioRelatorio = 'G:\\Drives compartilhados\\PROJETOS\\Contratos\\01.CONVENIAR\\21 - Automação de análise jurídica\\Relatórios de análise'
+#diretorioRelatorio = 'D:\\Downloads'
 
 mesAnterior = date.today().month-1
 ano = date.today().strftime('%y')
@@ -90,4 +90,4 @@ verificarInvalidos(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePl
 
 print('Relatório finalizado. \nFim da execução.')
 
-#input('Pessione enter para encerrar...')
+input('Pessione enter para encerrar...')

@@ -99,6 +99,6 @@ def validarCNDU(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                 linhaExcel +=1
                 incluirNoExcel(linhaExcel, 0, documentoAvaliado)
 
-                #lancamentoControle(id, 'I', valido, observacao, '', '')
+                lancamentoControle(id, 'I', valido, observacao, '', '')
 
     fecharExcel()
