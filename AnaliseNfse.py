@@ -93,8 +93,8 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                             observacao = observacao + 'CNAE incorreto na NFS-e. '
 
                     if('Valor Líquido da NFS-e' in linha):
-                        valorNota = conteudo[i+1].strip()
-                        if(valorNota != 'R$ 1.400,00'):
+                        valorNota = conteudo[i+1].split(' ')[-1].replace('.', '').replace(',', '.').strip()
+                        if(float(valorNota) < 1400):
                             valido = 'Não'
                             observacao = observacao + 'Verificar valor da NFS-e. '
 

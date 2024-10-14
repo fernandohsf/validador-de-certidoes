@@ -18,12 +18,12 @@ def validarLuizianaPR(conteudo):
             if('CPF/CNPJ:' in linha):
                 cnpj = conteudo[i+7].strip()
 
-            if('LUIZIANA - PR ,' in linha):
+            if('LUIZIANA - PR ,' in linha or 'LUIZIANA - PR,' in linha):
                 dataValidade = linha.split(', ')[-1].replace('.', '').strip()
                 try:
                     dataValidade = datetime.strptime(dataValidade,'%d de %B de %Y') + timedelta(days=90)
                 except:
                     dataValidade = '-'
-                
+        
         return cnpj, dataValidade 
     return '-', '-'

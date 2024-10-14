@@ -83,12 +83,14 @@ def validarMunicipiosPR(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, n
 	    'MunicipiosPR.AnaliseNovaOlimpia',
         'MunicipiosPR.AnaliseNovasLaranjeiras',
         'MunicipiosPR.AnaliseOuroVerdeDoOeste',
+        'MunicipiosPR.AnalisePalmital',
         'MunicipiosPR.AnaliseParaisoDoNorte',
         'MunicipiosPR.AnaliseParanagua',
 	    'MunicipiosPR.AnalisePauloFrontin',
         'MunicipiosPR.AnalisePeabiru',
         'MunicipiosPR.AnalisePerobal',
         'MunicipiosPR.AnalisePiraiDoSul',
+        'MunicipiosPR.AnalisePlanalto',
         'MunicipiosPR.AnalisePontaGrossa',
         'MunicipiosPR.AnaliseRibeiraoClaro',
 	    'MunicipiosPR.AnaliseRibeiraoDoPinhal',
@@ -112,7 +114,6 @@ def validarMunicipiosPR(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, n
     for pastas in os.listdir(diretorioAvaliacao):
         pasta = os.path.join(diretorioAvaliacao, pastas)
         id, nomeEmissor = identificacao(pastas)
-        print (id)
 
         for arquivo in os.listdir(pasta):
             ### LIMPANDO VARIÁVEIS PARA O PRÓXIMO ARQUIVO

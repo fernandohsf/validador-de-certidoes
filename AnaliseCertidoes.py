@@ -32,7 +32,7 @@ diretorioAvaliacao = 'D:\\Downloads'
 #diretorioRelatorio = 'G:\\Drives compartilhados\\PROJETOS\\Contratos\\01.CONVENIAR\\21 - Automação de análise jurídica\\Relatórios de análise'
 diretorioRelatorio = 'D:\\Downloads'
 
-mesAnterior = date.today().month
+mesAnterior = date.today().month-1
 ano = date.today().strftime('%y')
 mes = ['Dez','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov']
 
