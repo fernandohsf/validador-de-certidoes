@@ -17,7 +17,7 @@ def atualizarBase():
     baseCadastros = os.path.join(caminhoBase,'CadastroProfessorFormador.csv')
     dadosBase = {}
 
-    with open(baseCadastros, mode='r', newline='', encoding='utf-8') as arquivo_csv:
+    with open(baseCadastros, mode='r', newline='', encoding='ISO-8859-1') as arquivo_csv:
         leitor_csv = csv.DictReader(arquivo_csv)
         
         for linha in leitor_csv:

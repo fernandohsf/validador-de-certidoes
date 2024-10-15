@@ -22,7 +22,7 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
 
         for arquivo in os.listdir(pasta):
             apto = dataModificacao = observacao = valorNota = cnpj = tomador = cnae = valorNota = chaveAcesso = numeroNota = '-'
-            cnpjBase = None
+            cnpjBase = valorReceber = None
 
             if not(arquivo.endswith('.pdf') or arquivo.endswith('.PDF')):
                 continue
@@ -52,6 +52,7 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                 for linha in dadosBase.values():
                     if(int(linha.get('ID')) == id):
                         cnpjBase = linha.get('CNPJ')
+                        valorReceber = linha.get('ValorReceber')
                         break
                 
                 for i, linha in enumerate(conteudo):
@@ -103,9 +104,12 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
 
                     if('Valor Líquido da NFS-e' in linha):
                         valorNota = conteudo[i+1].split(' ')[-1].replace('.', '').replace(',', '.').strip()
-                        if(float(valorNota) < 1400):
-                            valido = 'Não'
-                            observacao = observacao + 'Verificar valor da NFS-e. '
+                        if(valorReceber is not None):
+                            if(float(valorNota) != float(valorReceber)):
+                                valido = 'Não'
+                                observacao = observacao + 'O valor total da nota difere do valor cadastrado. '
+                        else:
+                            observacao = observacao + 'Verificar valor da nota. '
 
                     if('ATIVIDADES DESCRITAS NA CLÁUSULA PRIMEIRA D' in linha.upper() 
                        or 'ATIVIDADES DESCRITAS NA CLAUSULA PRIMEIRA D' in linha.upper()
