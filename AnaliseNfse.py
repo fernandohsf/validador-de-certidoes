@@ -109,7 +109,7 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                                 valido = 'Não'
                                 observacao = observacao + 'O valor total da nota difere do valor cadastrado. '
                         else:
-                            observacao = observacao + 'Verificar valor da nota. '
+                            observacao = observacao + 'Sem valor cadastrado na planilha. '
 
                     if('ATIVIDADES DESCRITAS NA CLÁUSULA PRIMEIRA D' in linha.upper() 
                        or 'ATIVIDADES DESCRITAS NA CLAUSULA PRIMEIRA D' in linha.upper()
