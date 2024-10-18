@@ -8,4 +8,5 @@ build
 dist
 bibliotecasVirtuais
 output
+#Arquivos
 credenciais_google.json
