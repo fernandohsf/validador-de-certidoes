@@ -3,6 +3,7 @@ import os
 import time
 import fitz
 from datetime import datetime
+from MunicipiosPR.Interacoes.renomearDocumentos import renomearArquivoDuplicado
 from MunicipiosPR.Interacoes.validade import verificarDataValidade
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
 from MunicipiosPR.Excel.ExcelCertidoes import criarExcel, incluirNoExcel, fecharExcel
@@ -75,13 +76,11 @@ def validarCNDU(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
 
                 dataModificacao = time.strftime('%d/%m/%Y', time.localtime(os.path.getmtime(os.path.join(pasta, arquivo))))
 
-                try:
-                    nomeDocumento = f'02-CNDU {nomeEmissor}.pdf'
-                    os.rename(os.path.join(pasta, arquivo), os.path.join(pasta, nomeDocumento))    
-                except:
-                    nomeDocumento = f'DUPLICADO 02-CNDU {nomeEmissor}.pdf'
-                    os.rename(os.path.join(pasta, arquivo), os.path.join(pasta, nomeDocumento))    
-                    observacao = observacao + 'Existem dois arquivos de certidão CNDU. '
+                nomeBase = f"02-CNDU {nomeEmissor}.pdf"
+                nomeDocumento, duplicado = renomearArquivoDuplicado(pasta, arquivo, nomeBase)
+                
+                if duplicado:
+                    observacao += 'Existem arquivos de CNDU duplicados. '
                 
                 documentoAvaliado = (
                     datetime.strftime(data,'%d/%m/%Y'),

@@ -7,6 +7,7 @@ from datetime import datetime
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
 from MunicipiosPR.Excel.ExcelNota import criarExcel, incluirNoExcel, fecharExcel
 from MunicipiosPR.Interacoes.identificacao import identificacao
+from MunicipiosPR.Interacoes.renomearDocumentos import renomearArquivoDuplicado
 
 def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBase):
     data = datetime.today()
@@ -49,10 +50,10 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                 conteudo = re.sub('\xa0', ' ', conteudo)
                 conteudo = re.split('\n', conteudo)
 
-                for linha in dadosBase.values():
-                    if(int(linha.get('ID')) == id):
+                for id_linha, linha in dadosBase.items():
+                    if(int(id_linha) == id):
                         cnpjBase = linha.get('CNPJ')
-                        valorReceber = linha.get('ValorReceber')
+                        valorReceber = linha.get('Valor a receber')
                         break
                 
                 for i, linha in enumerate(conteudo):
@@ -105,6 +106,7 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                     if('Valor Líquido da NFS-e' in linha):
                         valorNota = conteudo[i+1].split(' ')[-1].replace('.', '').replace(',', '.').strip()
                         if(valorReceber is not None):
+                            valorReceber = valorReceber.replace('.', '').replace(',', '.').strip()
                             if(float(valorNota) != float(valorReceber)):
                                 valido = 'Não'
                                 observacao = observacao + 'O valor total da nota difere do valor cadastrado. '
@@ -178,13 +180,12 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
 
                 dataModificacao = time.strftime('%d/%m/%Y', time.localtime(os.path.getmtime(os.path.join(pasta, arquivo))))
 
-                try:
-                    nomeDocumento = f'01-NFSE {nomeEmissor}.pdf'
-                    os.rename(os.path.join(pasta, arquivo), os.path.join(pasta, nomeDocumento))        
-                except:
-                    nomeDocumento = f'DUPLICADO 01-NFSE {nomeEmissor}.pdf'
-                    os.rename(os.path.join(pasta, arquivo), os.path.join(pasta, nomeDocumento))    
-                    observacao = observacao + 'Existem dois arquivos de NFSE. ' 
+
+                nomeBase = f"01-NFSE {nomeEmissor}.pdf"
+                nomeDocumento, duplicado = renomearArquivoDuplicado(pasta, arquivo, nomeBase)
+                
+                if duplicado:
+                    observacao += 'Existem arquivos de NFSE duplicados. '
                 
                 documentoAvaliado = (
                         datetime.strftime(data,'%d/%m/%Y'),
@@ -205,5 +206,6 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                 incluirNoExcel(linhaExcel, 0, documentoAvaliado)
 
                 lancamentoControle(id, 'L', valido, observacao, valorNota, numeroNota)
+
 
     fecharExcel()

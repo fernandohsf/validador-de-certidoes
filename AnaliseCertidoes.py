@@ -1,5 +1,4 @@
 import os
-import csv
 import sys
 from datetime import date
 from AnaliseNfse import validarNFSE
@@ -10,19 +9,37 @@ from AnaliseCNDE_PR_Pj import validarCNDE_PR
 from AnaliseCNDM_PR import validarMunicipiosPR
 from AnaliseRelatorioAtividades import validarAtividades
 from CertidoesInvalidas import verificarInvalidos
+import gspread
+from google.oauth2.service_account import Credentials
 
 def atualizarBase():
-    Base = os.path.abspath(sys.argv[0])
-    caminhoBase = os.path.dirname(Base)
-    baseCadastros = os.path.join(caminhoBase,'CadastroProfessorFormador.csv')
-    dadosBase = {}
+    caminhoBase = os.path.dirname(os.path.abspath(sys.argv[0]))
+    caminho_credenciais = os.path.join(caminhoBase, 'credenciais_google.json')
 
-    with open(baseCadastros, mode='r', newline='', encoding='ISO-8859-1') as arquivo_csv:
-        leitor_csv = csv.DictReader(arquivo_csv)
-        
-        for linha in leitor_csv:
-            id_professor = linha['ID']
-            dadosBase[id_professor] = linha
+    scope = [
+        'https://www.googleapis.com/auth/spreadsheets',
+        'https://www.googleapis.com/auth/drive'
+    ]
+    creds = Credentials.from_service_account_file(caminho_credenciais, scopes=scope)
+    cliente = gspread.authorize(creds)
+
+    planilhaID = '1L_GtpCUd3_2uNGj8l64s7zr41ajyBUxxtxtVhQ5inLk' # Produção
+    #planilhaID = '1GSSDC9MOqEp3AuQJGe1DD9vV9Crdk7vHQGX9jhlPjOk' # Homologação
+    planilha = cliente.open_by_key(planilhaID).worksheet('Cadastro')
+
+    linhas = planilha.get_all_values()
+
+    cabecalho = linhas[0]
+    colunas_a_retirar = ['ID', 'Nome', 'CNPJ', 'Valor a receber']
+    indices_colunas = [cabecalho.index(coluna) for coluna in colunas_a_retirar]
+
+    dadosBase = {
+        linha[indices_colunas[0]]: {
+            colunas_a_retirar[i]: linha[indices_colunas[i]] for i in range(1, len(colunas_a_retirar))
+        }
+        for linha in linhas[1:]
+    }
+
     return dadosBase
 
 base = atualizarBase()
@@ -90,4 +107,4 @@ verificarInvalidos(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePl
 
 print('Relatório finalizado. \nFim da execução.')
 
-input('Pessione enter para encerrar...')
+#input('Pessione enter para encerrar...')

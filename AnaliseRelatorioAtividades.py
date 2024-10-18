@@ -8,6 +8,7 @@ from datetime import datetime
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
 from MunicipiosPR.Excel.ExcelAtividades import criarExcel, incluirNoExcel, fecharExcel
 from MunicipiosPR.Interacoes.identificacao import identificacao
+from MunicipiosPR.Interacoes.renomearDocumentos import renomearArquivoDuplicado
 
 def validarAtividades(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBase):
     locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
@@ -48,8 +49,8 @@ def validarAtividades(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nom
                 
                 valido = 'Sim'
 
-                for linha in dadosBase.values():
-                    if(int(linha.get('ID')) == id):
+                for id_linha, linha in dadosBase.items():
+                    if(int(id_linha) == id):
                         cnpjBase = linha.get('CNPJ')
                         break
 
@@ -145,13 +146,11 @@ def validarAtividades(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nom
 
                 dataModificacao = time.strftime('%d/%m/%Y', time.localtime(os.path.getmtime(os.path.join(pasta, arquivo))))
 
-                try:
-                    nomeDocumento = f'07-Relatório {nomeEmissor}.pdf'
-                    os.rename(os.path.join(pasta, arquivo), os.path.join(pasta, nomeDocumento))    
-                except:
-                    nomeDocumento = f'DUPLICADO 07-Relatório {nomeEmissor}.pdf'
-                    os.rename(os.path.join(pasta, arquivo), os.path.join(pasta, nomeDocumento))    
-                    observacao = observacao + 'Existem dois arquivos do relatório de atividades. '
+                nomeBase = f"07-Relatório {nomeEmissor}.pdf"
+                nomeDocumento, duplicado = renomearArquivoDuplicado(pasta, arquivo, nomeBase)
+                
+                if duplicado:
+                    observacao += 'Existem arquivos de relatório de atividades duplicados. '
                 
                 documentoAvaliado = (
                     datetime.strftime(data,'%d/%m/%Y'),
