@@ -107,4 +107,4 @@ verificarInvalidos(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePl
 
 print('Relatório finalizado. \nFim da execução.')
 
-#input('Pessione enter para encerrar...')
+input('Pessione enter para encerrar...')
