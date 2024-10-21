@@ -2,6 +2,7 @@ import os
 import fitz
 import time
 from datetime import datetime
+from MunicipiosPR.Interacoes.renomearDocumentos import renomearArquivoDuplicado
 from MunicipiosPR.Interacoes.validade import verificarDataValidade
 from MunicipiosPR.Excel.ExcelCertidoes import criarExcel, incluirNoExcel, fecharExcel
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
@@ -81,13 +82,16 @@ def validarMunicipiosPR(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, n
         'MunicipiosPR.AnaliseMatinhos',
 	    'MunicipiosPR.AnaliseNovaLondrina',
 	    'MunicipiosPR.AnaliseNovaOlimpia',
+        'MunicipiosPR.AnaliseNovasLaranjeiras',
         'MunicipiosPR.AnaliseOuroVerdeDoOeste',
+        'MunicipiosPR.AnalisePalmital',
         'MunicipiosPR.AnaliseParaisoDoNorte',
         'MunicipiosPR.AnaliseParanagua',
 	    'MunicipiosPR.AnalisePauloFrontin',
         'MunicipiosPR.AnalisePeabiru',
         'MunicipiosPR.AnalisePerobal',
         'MunicipiosPR.AnalisePiraiDoSul',
+        'MunicipiosPR.AnalisePlanalto',
         'MunicipiosPR.AnalisePontaGrossa',
         'MunicipiosPR.AnaliseRibeiraoClaro',
 	    'MunicipiosPR.AnaliseRibeiraoDoPinhal',
@@ -159,14 +163,12 @@ def validarMunicipiosPR(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, n
 
                 dataModificacao = time.strftime('%d/%m/%Y', time.localtime(os.path.getmtime(os.path.join(pasta, arquivo))))
 
-                try:
-                    nomeDocumento = f'06-CNDM {nomeEmissor}.pdf'
-                    os.rename(os.path.join(pasta, arquivo), os.path.join(pasta, nomeDocumento))    
-                except:
-                    nomeDocumento = f'DUPLICADO 06-CNDM {nomeEmissor}.pdf'
-                    os.rename(os.path.join(pasta, arquivo), os.path.join(pasta, nomeDocumento))
-                    observacao = observacao + 'Existem dois arquivos de certidão CNDM. '
-
+                nomeBase = f"06-CNDM {nomeEmissor}.pdf"
+                nomeDocumento, duplicado = renomearArquivoDuplicado(pasta, arquivo, nomeBase)
+                
+                if duplicado:
+                    observacao += 'Existem arquivos de CNDM duplicados. '
+                    
                 documentoAvaliado = (
                     datetime.strftime(data,'%d/%m/%Y'),
                     nomeDocumento,
@@ -181,6 +183,7 @@ def validarMunicipiosPR(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, n
                     observacao
                 )
                 linhaExcel +=1
+
                 incluirNoExcel(linhaExcel, 0, documentoAvaliado)
 
                 lancamentoControle(id, 'H', valido, observacao, '', '')

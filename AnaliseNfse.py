@@ -7,6 +7,7 @@ from datetime import datetime
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
 from MunicipiosPR.Excel.ExcelNota import criarExcel, incluirNoExcel, fecharExcel
 from MunicipiosPR.Interacoes.identificacao import identificacao
+from MunicipiosPR.Interacoes.renomearDocumentos import renomearArquivoDuplicado
 
 def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBase):
     data = datetime.today()
@@ -22,7 +23,7 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
 
         for arquivo in os.listdir(pasta):
             apto = dataModificacao = observacao = valorNota = cnpj = tomador = cnae = valorNota = chaveAcesso = numeroNota = '-'
-            cnpjBase = None
+            cnpjBase = valorReceber = None
 
             if not(arquivo.endswith('.pdf') or arquivo.endswith('.PDF')):
                 continue
@@ -49,9 +50,10 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                 conteudo = re.sub('\xa0', ' ', conteudo)
                 conteudo = re.split('\n', conteudo)
 
-                for linha in dadosBase.values():
-                    if(int(linha.get('ID')) == id):
+                for id_linha, linha in dadosBase.items():
+                    if(int(id_linha) == id):
                         cnpjBase = linha.get('CNPJ')
+                        valorReceber = linha.get('Valor a receber')
                         break
                 
                 for i, linha in enumerate(conteudo):
@@ -72,17 +74,26 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                         tomador = conteudo[i+2].strip()
                         if(tomador == '15.513.690/0001-50'):
                             tomador = 'FAPEC'
+                            endereco = (conteudo[i+12].strip(), conteudo[i+14].strip(), conteudo[i+16].strip())
+                            enderecos_validos = [
+                                ('GOIAS, 587, JARDIM DOS ESTADOS', 'Campo Grande - MS', '79020-100'),
+                                ('R GOIAS, 587, JARDIM DOS ESTADOS', 'Campo Grande - MS', '79020-100')
+                            ]
+
+                            if endereco not in enderecos_validos:
+                                observacao += 'Endereço do tomador incorreto. '
+
                         else:
                             apto = 'Inapto'
                             valido = 'Não'
                             tomador = '-'
-                            observacao = 'NFS-e sem tomardor ou tomador incorreto. '
+                            observacao = observacao + 'NFS-e sem tomador ou tomador incorreto. '
                             
                     if('TOMADOR DO SERVIÇO NÃO IDENTIFICADO NA NFS-e' in linha):
                         apto = 'Inapto'
                         tomador = '-'
                         valido = 'Não'
-                        observacao = 'NFS-e sem tomardor ou tomador incorreto. '
+                        observacao = observacao + 'NFS-e sem tomador ou tomador incorreto. '
 
                     if('Código de Tributação Nacional' in linha):
                         cnae = conteudo[i+1]
@@ -93,10 +104,14 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                             observacao = observacao + 'CNAE incorreto na NFS-e. '
 
                     if('Valor Líquido da NFS-e' in linha):
-                        valorNota = conteudo[i+1].strip()
-                        if(valorNota != 'R$ 1.400,00'):
-                            valido = 'Não'
-                            observacao = observacao + 'Verificar valor da NFS-e. '
+                        valorNota = conteudo[i+1].split(' ')[-1].replace('.', '').replace(',', '.').strip()
+                        if(valorReceber is not None):
+                            valorReceber = valorReceber.replace('.', '').replace(',', '.').strip()
+                            if(float(valorNota) != float(valorReceber)):
+                                valido = 'Não'
+                                observacao = observacao + 'O valor total da nota difere do valor cadastrado. '
+                        else:
+                            observacao = observacao + 'Sem valor cadastrado na planilha. '
 
                     if('ATIVIDADES DESCRITAS NA CLÁUSULA PRIMEIRA D' in linha.upper() 
                        or 'ATIVIDADES DESCRITAS NA CLAUSULA PRIMEIRA D' in linha.upper()
@@ -165,13 +180,12 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
 
                 dataModificacao = time.strftime('%d/%m/%Y', time.localtime(os.path.getmtime(os.path.join(pasta, arquivo))))
 
-                try:
-                    nomeDocumento = f'01-NFSE {nomeEmissor}.pdf'
-                    os.rename(os.path.join(pasta, arquivo), os.path.join(pasta, nomeDocumento))        
-                except:
-                    nomeDocumento = f'DUPLICADO 01-NFSE {nomeEmissor}.pdf'
-                    os.rename(os.path.join(pasta, arquivo), os.path.join(pasta, nomeDocumento))    
-                    observacao = observacao + 'Existem dois arquivos de NFSE. ' 
+
+                nomeBase = f"01-NFSE {nomeEmissor}.pdf"
+                nomeDocumento, duplicado = renomearArquivoDuplicado(pasta, arquivo, nomeBase)
+                
+                if duplicado:
+                    observacao += 'Existem arquivos de NFSE duplicados. '
                 
                 documentoAvaliado = (
                         datetime.strftime(data,'%d/%m/%Y'),
@@ -192,5 +206,6 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                 incluirNoExcel(linhaExcel, 0, documentoAvaliado)
 
                 lancamentoControle(id, 'L', valido, observacao, valorNota, numeroNota)
+
 
     fecharExcel()
