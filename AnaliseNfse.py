@@ -1,35 +1,36 @@
 import re
-import os
-import time
 import fitz
 import calendar
 from datetime import datetime
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
 from MunicipiosPR.Excel.ExcelNota import criarExcel, incluirNoExcel, fecharExcel
 from MunicipiosPR.Interacoes.identificacao import identificacao
-from MunicipiosPR.Interacoes.renomearDocumentos import renomearArquivoDuplicado
+from MunicipiosPR.Interacoes.googleDrive import listarArquivosDrive, baixarArquivo, renomearArquivoDrive
 
-def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBase):
+def validarNFSE(service, diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBase):
     data = datetime.today()
-    diretorioRelatorio = diretorioRelatorio
-    nomeRelatorio = nomeRelatorio
-    nomePlanilha = nomePlanilha
-    criarExcel(f'{diretorioRelatorio}/{nomeRelatorio} - {data.strftime("%d-%m-%Y(%Hh %Mm %Ss)")}.xlsx', nomePlanilha)
+    #criarExcel(f'{diretorioRelatorio}/{nomeRelatorio} - {data.strftime("%d-%m-%Y(%Hh %Mm %Ss)")}.xlsx', nomePlanilha)
 
     linhaExcel = 0
-    for pastas in os.listdir(diretorioAvaliacao):
-        pasta = os.path.join(diretorioAvaliacao, pastas)
-        id, nomeEmissor = identificacao(pastas)
+    pastas = listarArquivosDrive(service, diretorioAvaliacao)
 
-        for arquivo in os.listdir(pasta):
+    for pasta in pastas:
+        id, nomeEmissor = identificacao(pasta['name'])
+        idPasta = pasta['id']
+        arquivos = listarArquivosDrive(service, idPasta)
+
+        for arquivo in arquivos:
             apto = dataModificacao = observacao = valorNota = cnpj = tomador = cnae = valorNota = chaveAcesso = numeroNota = '-'
             cnpjBase = valorReceber = None
 
-            if not(arquivo.endswith('.pdf') or arquivo.endswith('.PDF')):
+            if not (arquivo['name'].endswith('.pdf') or arquivo['name'].endswith('.PDF')):
                 continue
 
+            caminhoPdfTemporario = f'G:\\Drives compartilhados\\PROJETOS\\Contratos\\01.CONVENIAR\\21 - Automação de análise jurídica\\Analisador de documentos\\tmp\\{arquivo["name"]}'
+            baixarArquivo(service, arquivo['id'], caminhoPdfTemporario)
+
             try:
-                pdf = fitz.open(os.path.join(pasta, arquivo))
+                pdf = fitz.open(caminhoPdfTemporario)
                 conteudo = ''
                 if pdf.page_count != 1:
                     continue
@@ -112,6 +113,7 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                                 observacao = observacao + 'O valor total da nota difere do valor cadastrado. '
                         else:
                             observacao = observacao + 'Sem valor cadastrado na planilha. '
+                        valorNota = valorNota.replace('.', ',')
 
                     if('ATIVIDADES DESCRITAS NA CLÁUSULA PRIMEIRA D' in linha.upper() 
                        or 'ATIVIDADES DESCRITAS NA CLAUSULA PRIMEIRA D' in linha.upper()
@@ -178,11 +180,11 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                    valido = 'Não'
                    observacao = observacao + 'Verificar a agência e conta na descrição da NFS-e.'
 
-                dataModificacao = time.strftime('%d/%m/%Y', time.localtime(os.path.getmtime(os.path.join(pasta, arquivo))))
+                dataModificacao = datetime.strptime(arquivo['modifiedTime'], '%Y-%m-%dT%H:%M:%S.%fZ')
+                dataModificacao = dataModificacao.strftime('%d/%m/%Y')
 
-
-                nomeBase = f"01-NFSE {nomeEmissor}.pdf"
-                nomeDocumento, duplicado = renomearArquivoDuplicado(pasta, arquivo, nomeBase)
+                novoNome = f"01-NFSE {nomeEmissor}.pdf"
+                nomeDocumento, duplicado = renomearArquivoDrive(service, arquivo['id'], novoNome, pasta['id'])
                 
                 if duplicado:
                     observacao += 'Existem arquivos de NFSE duplicados. '
@@ -203,9 +205,8 @@ def validarNFSE(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlani
                         observacao
                     )
                 linhaExcel +=1
-                incluirNoExcel(linhaExcel, 0, documentoAvaliado)
+                #incluirNoExcel(linhaExcel, 0, documentoAvaliado)
 
                 lancamentoControle(id, 'L', valido, observacao, valorNota, numeroNota)
 
-
-    fecharExcel()
+    #fecharExcel()

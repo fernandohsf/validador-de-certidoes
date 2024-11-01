@@ -1,8 +1,5 @@
-import re
-
-def identificacao(pastas):
-    id = re.split(' - ', pastas)
-    id = int(id[0])
-    nomeEmissor = re.split(' - ', pastas)
-    nomeEmissor = nomeEmissor[-1]
+def identificacao(pasta):
+    pasta = pasta.split(' - ')
+    id = int(pasta[0])
+    nomeEmissor = pasta[1]
     return id, nomeEmissor

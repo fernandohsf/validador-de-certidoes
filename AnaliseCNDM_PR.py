@@ -1,12 +1,10 @@
-import os
 import fitz
-import time
 from datetime import datetime
-from MunicipiosPR.Interacoes.renomearDocumentos import renomearArquivoDuplicado
 from MunicipiosPR.Interacoes.validade import verificarDataValidade
 from MunicipiosPR.Excel.ExcelCertidoes import criarExcel, incluirNoExcel, fecharExcel
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
 from MunicipiosPR.Interacoes.identificacao import identificacao
+from MunicipiosPR.Interacoes.googleDrive import listarArquivosDrive, baixarArquivo, renomearArquivoDrive
 
 def importarFuncoes(modulos, prefixo):
     funcoes = {}
@@ -20,9 +18,9 @@ def importarFuncoes(modulos, prefixo):
             print(f"Erro ao importar módulo {modulo}: {e}")
     return funcoes
 
-def validarMunicipiosPR(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha):
+def validarMunicipiosPR(service, diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha):
     data = datetime.today()
-    criarExcel(f'{diretorioRelatorio}/{nomeRelatorio} - {data.strftime("%d-%m-%Y(%Hh %Mm %Ss)")}.xlsx', nomePlanilha)
+    #criarExcel(f'{diretorioRelatorio}/{nomeRelatorio} - {data.strftime("%d-%m-%Y(%Hh %Mm %Ss)")}.xlsx', nomePlanilha)
     linhaExcel = 0
 
     ### IMPORTANDO AS FUNÇÕES DOS MUNICIPIOS DO PARANÁ
@@ -112,19 +110,24 @@ def validarMunicipiosPR(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, n
     ]
     funcoes = importarFuncoes(modulos, 'validar')
 
-    for pastas in os.listdir(diretorioAvaliacao):
-        pasta = os.path.join(diretorioAvaliacao, pastas)
-        id, nomeEmissor = identificacao(pastas)
+    pastas = listarArquivosDrive(service, diretorioAvaliacao)
 
-        for arquivo in os.listdir(pasta):
-            ### LIMPANDO VARIÁVEIS PARA O PRÓXIMO ARQUIVO
+    for pasta in pastas:
+        id, nomeEmissor = identificacao(pasta['name'])
+        idPasta = pasta['id']
+        arquivos = listarArquivosDrive(service, idPasta)
+
+        for arquivo in arquivos:
             apto = cnpj = dataValidade = diasValidade = dataModificacao = observacao = valido = codigoValidacao = '-' 
 
-            if not(arquivo.endswith('.pdf') or arquivo.endswith('.PDF')):
+            if not (arquivo['name'].endswith('.pdf') or arquivo['name'].endswith('.PDF')):
                 continue
 
+            caminhoPdfTemporario = f'G:\\Drives compartilhados\\PROJETOS\\Contratos\\01.CONVENIAR\\21 - Automação de análise jurídica\\Analisador de documentos\\tmp\\{arquivo["name"]}'
+            baixarArquivo(service, arquivo['id'], caminhoPdfTemporario)
+
             try:
-                pdf = fitz.open(os.path.join(pasta, arquivo))
+                pdf = fitz.open(caminhoPdfTemporario)
                 conteudo = ''
                 if pdf.page_count > 2:
                     continue
@@ -161,10 +164,11 @@ def validarMunicipiosPR(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, n
                     valido = 'Não'
                     observacao = observacao + 'Certidão CNDM não é jurídica ou CNPJ inválido. '
 
-                dataModificacao = time.strftime('%d/%m/%Y', time.localtime(os.path.getmtime(os.path.join(pasta, arquivo))))
+                dataModificacao = datetime.strptime(arquivo['modifiedTime'], '%Y-%m-%dT%H:%M:%S.%fZ')
+                dataModificacao = dataModificacao.strftime('%d/%m/%Y')
 
-                nomeBase = f"06-CNDM {nomeEmissor}.pdf"
-                nomeDocumento, duplicado = renomearArquivoDuplicado(pasta, arquivo, nomeBase)
+                novoNome = f"06-CNDM {nomeEmissor}.pdf"
+                nomeDocumento, duplicado = renomearArquivoDrive(service, arquivo['id'], novoNome, pasta['id'])
                 
                 if duplicado:
                     observacao += 'Existem arquivos de CNDM duplicados. '
@@ -184,8 +188,8 @@ def validarMunicipiosPR(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, n
                 )
                 linhaExcel +=1
 
-                incluirNoExcel(linhaExcel, 0, documentoAvaliado)
+                #incluirNoExcel(linhaExcel, 0, documentoAvaliado)
 
                 lancamentoControle(id, 'H', valido, observacao, '', '')
 
-    fecharExcel()
+    #fecharExcel()

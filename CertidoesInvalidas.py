@@ -1,10 +1,10 @@
 import re
-import os
 from datetime import datetime
 from MunicipiosPR.Excel.ExcelCertidoes import criarExcel, incluirNoExcel, fecharExcel
 from MunicipiosPR.Interacoes.identificacao import identificacao
+from MunicipiosPR.Interacoes.googleDrive import listarArquivosDrive
 
-def verificarInvalidos(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha):
+def verificarInvalidos(service, diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha):
     data = datetime.today()
     diretorioRelatorio = diretorioRelatorio
     nomeRelatorio = nomeRelatorio
@@ -12,22 +12,25 @@ def verificarInvalidos(diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, no
     criarExcel(f'{diretorioRelatorio}/{nomeRelatorio} - {data.strftime("%d-%m-%Y(%Hh %Mm %Ss)")}.xlsx', nomePlanilha)
 
     linhaExcel = 0
-    for pastas in os.listdir(diretorioAvaliacao):
-        pasta = os.path.join(diretorioAvaliacao, pastas)
-        id, nomeEmissor = identificacao(pastas)
-        
-        for arquivo in os.listdir(pasta):  
-            if not(re.search('01-NFSE', arquivo)
-            or re.search('02-CNDU', arquivo)
-            or re.search('03-CNDT', arquivo)
-            or re.search('04-CRF', arquivo) 
-            or re.search('05-CNDE', arquivo)
-            or re.search('06-CNDM', arquivo)
-            or re.search('07-Relatório', arquivo)
-            or re.search('.ini', arquivo)):
+    pastas = listarArquivosDrive(service, diretorioAvaliacao)
+
+    for pasta in pastas:
+        id, nomeEmissor = identificacao(pasta['name'])
+        idPasta = pasta['id']
+        arquivos = listarArquivosDrive(service, idPasta)
+
+        for arquivo in arquivos:  
+            if not(re.search('01-NFSE', arquivo['name'])
+            or re.search('02-CNDU', arquivo['name'])
+            or re.search('03-CNDT', arquivo['name'])
+            or re.search('04-CRF', arquivo['name']) 
+            or re.search('05-CNDE', arquivo['name'])
+            or re.search('06-CNDM', arquivo['name'])
+            or re.search('07-Relatório', arquivo['name'])
+            or re.search('.ini', arquivo['name'])):
                 documentoAvaliado = (
                     datetime.strftime(data,'%d/%m/%Y'),
-                    arquivo,
+                    arquivo['name'],
                     '-',
                     id,
                     nomeEmissor,
