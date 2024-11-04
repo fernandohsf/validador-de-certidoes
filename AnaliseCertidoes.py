@@ -85,10 +85,10 @@ def BuscarPastaMesAnterior(service, idDiretorioBase):
     
     return idPastaMesAnterior
 
-#diretorioBaseDrive = '1ZinjciG-RUIi_cZxZzi2k-4YaNgm1Gft' # Produção
-diretorioBaseDrive = '1yq5i3L1tHrztWPTiSVrwYKSFgpEy9DDl' # Homologação
-#diretorioRelatorio = 'G:\\Drives compartilhados\\PROJETOS\\Contratos\\01.CONVENIAR\\21 - Automação de análise jurídica\\Relatórios de análise' #Produção
-diretorioRelatorio = 'D:\\Downloads' # Homologação
+diretorioBaseDrive = '1ZinjciG-RUIi_cZxZzi2k-4YaNgm1Gft' # Produção
+#diretorioBaseDrive = '1yq5i3L1tHrztWPTiSVrwYKSFgpEy9DDl' # Homologação
+diretorioRelatorio = 'G:\\Drives compartilhados\\PROJETOS\\Contratos\\01.CONVENIAR\\21 - Automação de análise jurídica\\Relatórios de análise' #Produção
+#diretorioRelatorio = 'D:\\Downloads' # Homologação
 
 base = atualizarBase()
 service_drive, cliente_gspread = autenticarGoogleAPI()

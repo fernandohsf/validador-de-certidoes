@@ -7,7 +7,7 @@ def verificarDataValidade(data, dataValidade, apto, valido):
             valido = 'Não'
 
         diasValidade = dataValidade - data
-        if(0 <= int(diasValidade.days) < 5):
+        if(0 <= int(diasValidade.days) < 10):
             valido = 'Não'
         diasValidade = int(diasValidade.days)
         dataValidade = datetime.strftime(dataValidade,'%d/%m/%Y')
