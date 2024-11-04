@@ -1,6 +1,6 @@
+from datetime import date
 import os
 import sys
-from datetime import date
 from AnaliseNfse import validarNFSE
 from AnaliseCNDU_Pj import validarCNDU
 from AnaliseCNDT_Pj import validarCNDT
@@ -8,15 +8,11 @@ from AnaliseCRF_Pj import validarCRF
 from AnaliseCNDE_PR_Pj import validarCNDE_PR
 from AnaliseCNDM_PR import validarMunicipiosPR
 from AnaliseRelatorioAtividades import validarAtividades
-from CertidoesInvalidas import verificarInvalidos
-from MunicipiosPR.Interacoes.googleDrive import autenticarGoogleAPI
+from MunicipiosPR.Interacoes.googleDrive import autenticarGoogleAPI, listarArquivosDrive
+from MunicipiosPR.Interacoes.identificacao import identificacao
 
-def atualizarBase():
-    planilhaID = '1L_GtpCUd3_2uNGj8l64s7zr41ajyBUxxtxtVhQ5inLk' # Produção
-    #planilhaID = '1GSSDC9MOqEp3AuQJGe1DD9vV9Crdk7vHQGX9jhlPjOk' # Homologação
-
+def atualizarBase(planilhaID, cliente_gspread):
     try:
-        service_drive, cliente_gspread = autenticarGoogleAPI()
         planilha_cadastro = cliente_gspread.open_by_key(planilhaID).worksheet('Cadastro')
         linhas_cadastro = planilha_cadastro.get_all_values()
         
@@ -40,7 +36,7 @@ def atualizarBase():
         for linha in linhas_cadastro[1:]
     }
 
-    # Processa dados da planilha Análise
+    # Processa dados da planilha Disponível para Análise
     cabecalho_analise = linhas_analise[0]
     colunasExtraidasAnalise = ['ID', 'Documentos estão aptos para seguir para pagamento?']
     indicesColunasAnalise = [cabecalho_analise.index(coluna) for coluna in colunasExtraidasAnalise]
@@ -101,59 +97,49 @@ def BuscarPastaMesAnterior(service, idDiretorioBase):
     
     return idPastaMesAnterior
 
-diretorioBaseDrive = '1ZinjciG-RUIi_cZxZzi2k-4YaNgm1Gft' # Produção
-#diretorioBaseDrive = '1yq5i3L1tHrztWPTiSVrwYKSFgpEy9DDl' # Homologação
-diretorioRelatorio = 'G:\\Drives compartilhados\\PROJETOS\\Contratos\\01.CONVENIAR\\21 - Automação de análise jurídica\\Relatórios de análise' #Produção
-#diretorioRelatorio = 'D:\\Downloads' # Homologação
+#planilhaID = '1L_GtpCUd3_2uNGj8l64s7zr41ajyBUxxtxtVhQ5inLk' # Produção
+#diretorioBaseDrive = '1ZinjciG-RUIi_cZxZzi2k-4YaNgm1Gft' # Produção
+planilhaID = '1GSSDC9MOqEp3AuQJGe1DD9vV9Crdk7vHQGX9jhlPjOk' # Homologação
+diretorioBaseDrive = '1yq5i3L1tHrztWPTiSVrwYKSFgpEy9DDl' # Homologação
 
-dadosBaseCadastro, dadosBaseAnalise = atualizarBase()
 service_drive, cliente_gspread = autenticarGoogleAPI()
+dadosBaseCadastro, dadosBaseAnalise = atualizarBase(planilhaID, cliente_gspread)
+
 idPastaMesAnterior = BuscarPastaMesAnterior(service_drive, diretorioBaseDrive)
+pastas = listarArquivosDrive(service_drive, idPastaMesAnterior)
 
-print('Iniciando verificação de NFSE (Nota fiscal de serviço eletrônica). \nAguarde...')
-nomeRelatorio = 'Relatório de Validação NFSE'
-nomePlanilha = 'NFSE'
-status = validarNFSE(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBaseCadastro, dadosBaseAnalise)
+for pasta in pastas:
+    downloadsTemp = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'Downloads')
+    os.makedirs(downloadsTemp, exist_ok=True)
 
-print('Verificação de NFSE finalizada. \nIniciando verficação de CNDU (Certidão negativa de débitos da União). \nAguarde...')
-nomeRelatorio = 'Relatório de Validação CNDU'
-nomePlanilha = 'CNDU'
-validarCNDU(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBaseAnalise)  
+    id, nomeProfessor = identificacao(pasta['name'])
+    idPastaProfessor = pasta['id']
+    if str(id) in dadosBaseAnalise:
+        status = dadosBaseAnalise[str(id)].get("Documentos estão aptos para seguir para pagamento?", "Status não encontrado")
+        if status == 'Apto' or status == 'Inapto':
+            continue
 
-print('Verificação de CNDU finalizada. \nIniciando verificação de CNDT (Certidão negativa de débitos trabalhistas). \nAguarde...')
-nomeRelatorio = 'Relatório de Validação CNDT'
-nomePlanilha = 'CNDT'
-validarCNDT(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBaseAnalise)  
+    print('Iniciando verificação de NFSE (Nota fiscal de serviço eletrônica). \nAguarde...')
+    validarNFSE(service_drive, cliente_gspread, idPastaProfessor, dadosBaseCadastro, nomeProfessor, planilhaID)
 
-print('Verificação de CNDT finalizada. \nIniciando verificação de CRF (Certidão de regularidade do FGTS). \nAguarde...')
-nomeRelatorio = 'Relatório de Validação CRF'
-nomePlanilha = 'CRF'
-validarCRF(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBaseAnalise)
+    print('Verificação de NFSE finalizada. \nIniciando verficação de CNDU (Certidão negativa de débitos da União). \nAguarde...')
+    validarCNDU(service_drive, idPastaMesAnterior, dadosBaseAnalise)  
 
-### INÍCIO DAS VERIFICAÇÕES DO PARANÁ ###
+    print('Verificação de CNDU finalizada. \nIniciando verificação de CNDT (Certidão negativa de débitos trabalhistas). \nAguarde...')
+    validarCNDT(service_drive, idPastaMesAnterior, dadosBaseAnalise)  
 
-print('Verficação de CRF finalizada. \nIninciando verificação de CNDE (Certidão negativa de débitos estaduais). \nAguarde...')
-nomeRelatorio = 'Relatório de Validação CNDE'
-nomePlanilha = 'CNDE'
-validarCNDE_PR(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBaseAnalise) 
+    print('Verificação de CNDT finalizada. \nIniciando verificação de CRF (Certidão de regularidade do FGTS). \nAguarde...')
+    validarCRF(service_drive, idPastaMesAnterior, dadosBaseAnalise)
 
-print('Verificação de CNDE finalizada. \nIniciando verificação de CNDM (Certidão negativa de débitos municipais). \nAguarde...')
-nomeRelatorio = 'Relatório de Validação CNDM'
-nomePlanilha = 'CNDM'
-validarMunicipiosPR(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBaseAnalise)
+    print('Verficação de CRF finalizada. \nIninciando verificação de CNDE (Certidão negativa de débitos estaduais). \nAguarde...')
+    validarCNDE_PR(service_drive, idPastaMesAnterior, dadosBaseAnalise) 
 
-### FIM DAS VERIFICAÇÕES DO PARANÁ ###
+    print('Verificação de CNDE finalizada. \nIniciando verificação de CNDM (Certidão negativa de débitos municipais). \nAguarde...')
+    validarMunicipiosPR(service_drive, idPastaMesAnterior, dadosBaseAnalise)
 
-print('Verificação de CNDM finalizada. \nIniciando verificação de relatórios de atividades. \nAguarde...')
-nomeRelatorio = 'Relatório de Validação de Atividades'
-nomePlanilha = 'Atividades'
-validarAtividades(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBaseCadastro, dadosBaseAnalise)
+    print('Verificação de CNDM finalizada. \nIniciando verificação de relatórios de atividades. \nAguarde...')
+    validarAtividades(service_drive, idPastaMesAnterior, dadosBaseCadastro, dadosBaseAnalise)
 
-print('Verificação de relatórios de atividades finalizada.')
-#nomeRelatorio = 'Relatório de documento não avaliados'
-#nomePlanilha = 'Não-lidos'
-#verificarInvalidos(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha)
-
-print('\nRelatório finalizado. \nFim da execução.')
+    print('Verificação de relatórios de atividades finalizada.\nRelatório finalizado.\nFim da execução.')
 
 #input('Pessione enter para encerrar...')

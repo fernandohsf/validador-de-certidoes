@@ -1,14 +1,9 @@
 from datetime import datetime
-from MunicipiosPR.Interacoes.googleDrive import autenticarGoogleAPI
 
-def lancamentoControle(id, letraControle, valido, observacao, valorNota, numeroNota):
-    #planilhaID = '1L_GtpCUd3_2uNGj8l64s7zr41ajyBUxxtxtVhQ5inLk' # Produção
-    planilhaID = '1GSSDC9MOqEp3AuQJGe1DD9vV9Crdk7vHQGX9jhlPjOk' # Homologação
-
+def lancamentoControle(id, letraControle, valido, observacao, valorNota, numeroNota, cliente_gspread,planilhaID):
     data = datetime.today().strftime('%d/%m/%Y')
 
     try:
-        service_drive, cliente_gspread = autenticarGoogleAPI()
         planilha = cliente_gspread.open_by_key(planilhaID).worksheet('Disponível para Análise')
     except Exception as e:
         print(f"Erro ao acessar a planilha: {e}")

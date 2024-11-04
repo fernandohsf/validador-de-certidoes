@@ -26,10 +26,12 @@ def listarArquivosDrive(service, idPasta):
     resultados = service.files().list(q=query, fields="files(id, name, modifiedTime)").execute()
     return resultados.get('files', [])
 
-def baixarArquivo(service, idArquivo, caminho_destino):
+def baixarArquivo(service, idArquivo, nomeArquivo):
+    caminhoTemporario = f'G:\\Drives compartilhados\\PROJETOS\\Contratos\\01.CONVENIAR\\21 - Automação de análise jurídica\\Analisador de documentos\\tmp'
+    pdfTemporario = os.path(caminhoTemporario, nomeArquivo)
     try:
         request = service.files().get_media(fileId=idArquivo)
-        with open(caminho_destino, "wb") as fh:
+        with open(caminhoTemporario, "wb") as fh:
             downloader = MediaIoBaseDownload(fh, request)
             done = False
             while not done:
@@ -37,6 +39,7 @@ def baixarArquivo(service, idArquivo, caminho_destino):
         fh.close()
     except Exception as e:
         print(f"Erro ao baixar arquivo: {e}")
+    return pdfTemporario
 
 def renomearArquivoDrive(service, idArquivo, novoNome, idPasta):
     # Verificar se o arquivo é o que está sendo renomeado
@@ -62,7 +65,7 @@ def renomearArquivoDrive(service, idArquivo, novoNome, idPasta):
         fields='id, name'
     ).execute()
 
-    return nomeFinal, contador > 1
+    return contador > 1
 
 def arquivoExiste(service, nomeArquivo, idPasta):
     # Verifica se já existe um arquivo com o mesmo nome na pasta especificada

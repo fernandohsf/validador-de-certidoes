@@ -1,7 +1,6 @@
 import fitz
 from datetime import datetime
 from MunicipiosPR.Interacoes.validade import verificarDataValidade
-from MunicipiosPR.Excel.ExcelCertidoes import criarExcel, incluirNoExcel, fecharExcel
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
 from MunicipiosPR.Interacoes.identificacao import identificacao
 from MunicipiosPR.Interacoes.googleDrive import listarArquivosDrive, baixarArquivo, renomearArquivoDrive
