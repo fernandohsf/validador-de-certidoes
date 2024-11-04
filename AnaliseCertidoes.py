@@ -12,8 +12,8 @@ from CertidoesInvalidas import verificarInvalidos
 from MunicipiosPR.Interacoes.googleDrive import autenticarGoogleAPI
 
 def atualizarBase():
-    #planilhaID = '1L_GtpCUd3_2uNGj8l64s7zr41ajyBUxxtxtVhQ5inLk' # Produção
-    planilhaID = '1GSSDC9MOqEp3AuQJGe1DD9vV9Crdk7vHQGX9jhlPjOk' # Homologação
+    planilhaID = '1L_GtpCUd3_2uNGj8l64s7zr41ajyBUxxtxtVhQ5inLk' # Produção
+    #planilhaID = '1GSSDC9MOqEp3AuQJGe1DD9vV9Crdk7vHQGX9jhlPjOk' # Homologação
 
     try:
         service_drive, cliente_gspread = autenticarGoogleAPI()
@@ -91,18 +91,18 @@ def BuscarPastaMesAnterior(service, idDiretorioBase):
     
     for mesPasta in mes:
         if mesAnterior == 0:
-            nome_pasta = f'{mesPasta} {int(anoAbreviado) - 1}'
+            nome_pasta = f'{mesPasta}/{int(anoAbreviado) - 1}'
             break
         if mesAnterior == mes.index(mesPasta):
-            nome_pasta = f'{mesPasta} {anoAbreviado}'
+            nome_pasta = f'{mesPasta}/{anoAbreviado}'
             break
     
     idPastaMesAnterior = buscarPasta(service, nome_pasta, idPastaPai=idPastaEmail)
     
     return idPastaMesAnterior
 
-#diretorioBaseDrive = '1ZinjciG-RUIi_cZxZzi2k-4YaNgm1Gft' # Produção
-diretorioBaseDrive = '1yq5i3L1tHrztWPTiSVrwYKSFgpEy9DDl' # Homologação
+diretorioBaseDrive = '1ZinjciG-RUIi_cZxZzi2k-4YaNgm1Gft' # Produção
+#diretorioBaseDrive = '1yq5i3L1tHrztWPTiSVrwYKSFgpEy9DDl' # Homologação
 diretorioRelatorio = 'G:\\Drives compartilhados\\PROJETOS\\Contratos\\01.CONVENIAR\\21 - Automação de análise jurídica\\Relatórios de análise' #Produção
 #diretorioRelatorio = 'D:\\Downloads' # Homologação
 
