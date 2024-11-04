@@ -18,7 +18,7 @@ def importarFuncoes(modulos, prefixo):
             print(f"Erro ao importar módulo {modulo}: {e}")
     return funcoes
 
-def validarMunicipiosPR(service, diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha):
+def validarMunicipiosPR(service, diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBaseAnalise):
     data = datetime.today()
     #criarExcel(f'{diretorioRelatorio}/{nomeRelatorio} - {data.strftime("%d-%m-%Y(%Hh %Mm %Ss)")}.xlsx', nomePlanilha)
     linhaExcel = 0
@@ -115,6 +115,10 @@ def validarMunicipiosPR(service, diretorioAvaliacao, diretorioRelatorio, nomeRel
     for pasta in pastas:
         id, nomeEmissor = identificacao(pasta['name'])
         idPasta = pasta['id']
+        if str(id) in dadosBaseAnalise:
+            status = dadosBaseAnalise[str(id)].get("Documentos estão aptos para seguir para pagamento?", "Status não encontrado")
+            if status == 'Apto' or status == 'Inapto':
+                continue
         arquivos = listarArquivosDrive(service, idPasta)
 
         for arquivo in arquivos:

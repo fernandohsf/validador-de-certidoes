@@ -7,7 +7,7 @@ from MunicipiosPR.Excel.ExcelCertidoes import criarExcel, incluirNoExcel, fechar
 from MunicipiosPR.Interacoes.identificacao import identificacao
 from MunicipiosPR.Interacoes.googleDrive import listarArquivosDrive, baixarArquivo, renomearArquivoDrive
 
-def validarCNDT(service, diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha):
+def validarCNDT(service, diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBaseAnalise):
     data = datetime.today()
     #criarExcel(f'{diretorioRelatorio}/{nomeRelatorio} - {data.strftime("%d-%m-%Y(%Hh %Mm %Ss)")}.xlsx', nomePlanilha)
 
@@ -17,6 +17,10 @@ def validarCNDT(service, diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, 
     for pasta in pastas:
         id, nomeEmissor = identificacao(pasta['name'])
         idPasta = pasta['id']
+        if str(id) in dadosBaseAnalise:
+            status = dadosBaseAnalise[str(id)].get("Documentos estão aptos para seguir para pagamento?", "Status não encontrado")
+            if status == 'Apto' or status == 'Inapto':
+                continue
         arquivos = listarArquivosDrive(service, idPasta)
 
         for arquivo in arquivos:

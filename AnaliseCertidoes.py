@@ -17,26 +17,42 @@ def atualizarBase():
 
     try:
         service_drive, cliente_gspread = autenticarGoogleAPI()
-        planilha = cliente_gspread.open_by_key(planilhaID).worksheet('Cadastro')
-        linhas = planilha.get_all_values()
+        planilha_cadastro = cliente_gspread.open_by_key(planilhaID).worksheet('Cadastro')
+        linhas_cadastro = planilha_cadastro.get_all_values()
+        
+        # Acessa a planilha Análise
+        planilha_analise = cliente_gspread.open_by_key(planilhaID).worksheet('Disponível para Análise')
+        linhas_analise = planilha_analise.get_all_values()
+
     except Exception as e:
-        print(f"Erro ao acessar a planilha: {e}")
-        return {}
+        print(f"Erro ao acessar as planilhas: {e}")
+        return {}, {}
 
-    linhas = planilha.get_all_values()
+    # Processa dados da planilha Cadastro
+    cabecalho_cadastro = linhas_cadastro[0]
+    colunasExtraidasCadastro = ['ID', 'Nome', 'CNPJ', 'Valor a receber']
+    indicesColunasCadastro = [cabecalho_cadastro.index(coluna) for coluna in colunasExtraidasCadastro]
 
-    cabecalho = linhas[0]
-    colunasExtraidas = ['ID', 'Nome', 'CNPJ', 'Valor a receber']
-    indicesColunasExtraidas = [cabecalho.index(coluna) for coluna in colunasExtraidas]
-
-    dadosBase = {
-        linha[indicesColunasExtraidas[0]]: {
-            colunasExtraidas[i]: linha[indicesColunasExtraidas[i]] for i in range(1, len(colunasExtraidas))
+    dadosBaseCadastro = {
+        linha[indicesColunasCadastro[0]]: {
+            colunasExtraidasCadastro[i]: linha[indicesColunasCadastro[i]] for i in range(1, len(colunasExtraidasCadastro))
         }
-        for linha in linhas[1:]
+        for linha in linhas_cadastro[1:]
+    }
+
+    # Processa dados da planilha Análise
+    cabecalho_analise = linhas_analise[0]
+    colunasExtraidasAnalise = ['ID', 'Documentos estão aptos para seguir para pagamento?']
+    indicesColunasAnalise = [cabecalho_analise.index(coluna) for coluna in colunasExtraidasAnalise]
+
+    dadosBaseAnalise = {
+        linha[indicesColunasAnalise[0]]: {
+            colunasExtraidasAnalise[i]: linha[indicesColunasAnalise[i]] for i in range(1, len(colunasExtraidasAnalise))
+        }
+        for linha in linhas_analise[1:]
     }
     
-    return dadosBase
+    return dadosBaseCadastro, dadosBaseAnalise
 
 def buscarPasta(service, nomePasta, idPastaPai=None):
     query = f"name = '{nomePasta}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
@@ -85,53 +101,53 @@ def BuscarPastaMesAnterior(service, idDiretorioBase):
     
     return idPastaMesAnterior
 
-diretorioBaseDrive = '1ZinjciG-RUIi_cZxZzi2k-4YaNgm1Gft' # Produção
-#diretorioBaseDrive = '1yq5i3L1tHrztWPTiSVrwYKSFgpEy9DDl' # Homologação
+#diretorioBaseDrive = '1ZinjciG-RUIi_cZxZzi2k-4YaNgm1Gft' # Produção
+diretorioBaseDrive = '1yq5i3L1tHrztWPTiSVrwYKSFgpEy9DDl' # Homologação
 diretorioRelatorio = 'G:\\Drives compartilhados\\PROJETOS\\Contratos\\01.CONVENIAR\\21 - Automação de análise jurídica\\Relatórios de análise' #Produção
 #diretorioRelatorio = 'D:\\Downloads' # Homologação
 
-base = atualizarBase()
+dadosBaseCadastro, dadosBaseAnalise = atualizarBase()
 service_drive, cliente_gspread = autenticarGoogleAPI()
 idPastaMesAnterior = BuscarPastaMesAnterior(service_drive, diretorioBaseDrive)
 
 print('Iniciando verificação de NFSE (Nota fiscal de serviço eletrônica). \nAguarde...')
 nomeRelatorio = 'Relatório de Validação NFSE'
 nomePlanilha = 'NFSE'
-validarNFSE(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha, base)
+status = validarNFSE(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBaseCadastro, dadosBaseAnalise)
 
 print('Verificação de NFSE finalizada. \nIniciando verficação de CNDU (Certidão negativa de débitos da União). \nAguarde...')
 nomeRelatorio = 'Relatório de Validação CNDU'
 nomePlanilha = 'CNDU'
-validarCNDU(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha)  
+validarCNDU(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBaseAnalise)  
 
 print('Verificação de CNDU finalizada. \nIniciando verificação de CNDT (Certidão negativa de débitos trabalhistas). \nAguarde...')
 nomeRelatorio = 'Relatório de Validação CNDT'
 nomePlanilha = 'CNDT'
-validarCNDT(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha)  
+validarCNDT(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBaseAnalise)  
 
 print('Verificação de CNDT finalizada. \nIniciando verificação de CRF (Certidão de regularidade do FGTS). \nAguarde...')
 nomeRelatorio = 'Relatório de Validação CRF'
 nomePlanilha = 'CRF'
-validarCRF(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha)
+validarCRF(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBaseAnalise)
 
 ### INÍCIO DAS VERIFICAÇÕES DO PARANÁ ###
 
 print('Verficação de CRF finalizada. \nIninciando verificação de CNDE (Certidão negativa de débitos estaduais). \nAguarde...')
 nomeRelatorio = 'Relatório de Validação CNDE'
 nomePlanilha = 'CNDE'
-validarCNDE_PR(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha) 
+validarCNDE_PR(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBaseAnalise) 
 
 print('Verificação de CNDE finalizada. \nIniciando verificação de CNDM (Certidão negativa de débitos municipais). \nAguarde...')
 nomeRelatorio = 'Relatório de Validação CNDM'
 nomePlanilha = 'CNDM'
-validarMunicipiosPR(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha)
+validarMunicipiosPR(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBaseAnalise)
 
 ### FIM DAS VERIFICAÇÕES DO PARANÁ ###
 
 print('Verificação de CNDM finalizada. \nIniciando verificação de relatórios de atividades. \nAguarde...')
 nomeRelatorio = 'Relatório de Validação de Atividades'
 nomePlanilha = 'Atividades'
-validarAtividades(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha, base)
+validarAtividades(service_drive, idPastaMesAnterior, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBaseCadastro, dadosBaseAnalise)
 
 print('Verificação de relatórios de atividades finalizada.')
 #nomeRelatorio = 'Relatório de documento não avaliados'
