@@ -31,9 +31,16 @@ def validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload
             observacao = ''
             valido = 'Sim'
             observadorClausula = observadorPeriodo = observadorConta = 0
+
+            novoNome = f"01-NFSE {nomeProfessor}.pdf"
+            novoNome, duplicado = renomearArquivoDrive(service_drive, os.path.splitext(arquivo)[0], novoNome, idPasta)
+            if duplicado:
+                observacao += 'Existem arquivos de NFSE duplicados. '
+                lancamentoControle(idProfessor, 'L', '', observacao, '', '', cliente_gspread, planilhaID)
+                continue
+
             conteudo = re.sub('\xa0', ' ', conteudo)
             conteudo = re.split('\n', conteudo)
-            print(conteudo)
 
             for id_linha, linha in dadosBaseCadastro.items():
                 if(int(id_linha) == idProfessor):
@@ -112,7 +119,7 @@ def validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload
                     or 'COMPETÊNCIA:' in linha.upper()
                     or 'COMPETENCIA:' in linha.upper()):
                     linha = linha.upper()
-                    periodo = linha.split('AÇÃO: ')[-1].split('.')[0].split(',')[0].upper()
+                    periodo = linha.split('AÇÃO: ')[-1].split('.')[0].split(',')[0]
                     periodo = periodo.replace(' ', '')
                     mes = data.month - 1
                     ano = data.year
@@ -156,11 +163,5 @@ def validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload
             if(observadorConta == 0):
                 valido = 'Não'
                 observacao = observacao + 'Verificar a agência e conta na descrição da NFS-e.'
-
-            novoNome = f"01-NFSE {nomeProfessor}.pdf"
-            novoNome, duplicado = renomearArquivoDrive(service_drive, os.path.splitext(arquivo)[0], novoNome, idPasta)
-            
-            if duplicado:
-                observacao += 'Existem arquivos de NFSE duplicados. '
 
             lancamentoControle(idProfessor, 'L', valido, observacao, valorNota, numeroNota, cliente_gspread, planilhaID)
