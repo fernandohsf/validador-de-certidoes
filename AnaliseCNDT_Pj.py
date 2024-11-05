@@ -4,7 +4,7 @@ from datetime import datetime
 from MunicipiosPR.Interacoes.validade import verificarDataValidade
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
 from MunicipiosPR.Interacoes.identificacao import identificacao
-from MunicipiosPR.Interacoes.googleDrive import listarArquivosDrive, baixarArquivo, renomearArquivoDrive
+from googleDrive import listarArquivosDrive, baixarArquivo, renomearArquivoDrive
 
 def validarCNDT(service, diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBaseAnalise):
     data = datetime.today()

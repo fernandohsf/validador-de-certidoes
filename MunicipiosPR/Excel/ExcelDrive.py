@@ -39,7 +39,6 @@ def lancamentoControle(id, letraControle, valido, observacao, valorNota, numeroN
                     'range': f'P{index}', # Status da coluna P
                     'values': [['Inapto']]
                 })
-                
         else:
             updates.append({
                 'range': f'{letraControle}{index}',  # Atualizar a célula correspondente à letra de controle

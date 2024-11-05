@@ -5,7 +5,7 @@ import fitz
 from datetime import datetime
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
 from MunicipiosPR.Interacoes.identificacao import identificacao
-from MunicipiosPR.Interacoes.googleDrive import listarArquivosDrive, baixarArquivo, renomearArquivoDrive
+from googleDrive import listarArquivosDrive, baixarArquivo, renomearArquivoDrive
 
 def validarAtividades(service, diretorioAvaliacao, diretorioRelatorio, nomeRelatorio, nomePlanilha, dadosBase, dadosBaseAnalise):
     locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')

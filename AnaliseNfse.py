@@ -1,25 +1,20 @@
+import os
 import re
 import fitz
 import calendar
 from datetime import datetime
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
-from MunicipiosPR.Interacoes.googleDrive import listarArquivosDrive, baixarArquivo, renomearArquivoDrive
+from googleDrive import renomearArquivoDrive
 
-def validarNFSE(service_drive, cliente_gspread, idPasta, dadosBaseCadastro, nomeProfessor, planilhaID):
+def validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID):
     data = datetime.today()
-    arquivos = listarArquivosDrive(service_drive, idPasta)
 
-    for arquivo in arquivos:
+    for arquivo in os.listdir(pastaDownload):
         observacao = valorNota = cnpj = tomador = cnae = valorNota = numeroNota = '-'
         cnpjBase = valorReceber = None
 
-        if not arquivo['name'].lower().endswith('.pdf'):
-            continue
-
-        caminhoPdfTemporario = baixarArquivo(service_drive, arquivo['id'], arquivo['name'])
-
         try:
-            pdf = fitz.open(caminhoPdfTemporario)
+            pdf = fitz.open(os.path.join(pastaDownload, arquivo))
             conteudo = ''
             if pdf.page_count != 1:
                 continue
@@ -38,9 +33,10 @@ def validarNFSE(service_drive, cliente_gspread, idPasta, dadosBaseCadastro, nome
             observadorClausula = observadorPeriodo = observadorConta = 0
             conteudo = re.sub('\xa0', ' ', conteudo)
             conteudo = re.split('\n', conteudo)
+            print(conteudo)
 
             for id_linha, linha in dadosBaseCadastro.items():
-                if(int(id_linha) == id):
+                if(int(id_linha) == idProfessor):
                     cnpjBase = linha.get('CNPJ')
                     valorReceber = linha.get('Valor a receber')
                     break
@@ -97,7 +93,7 @@ def validarNFSE(service_drive, cliente_gspread, idPasta, dadosBaseCadastro, nome
                             valido = 'Não'
                             observacao = observacao + 'O valor total da nota difere do valor cadastrado. '
                     else:
-                        observacao = observacao + 'Sem valor cadastrado na planilha. '
+                        observacao = observacao + 'Sem valor a receber informado na planilha Cadastro. '
                     valorNota = valorNota.replace('.', ',')
 
                 if('ATIVIDADES DESCRITAS NA CLÁUSULA PRIMEIRA D' in linha.upper() 
@@ -162,9 +158,9 @@ def validarNFSE(service_drive, cliente_gspread, idPasta, dadosBaseCadastro, nome
                 observacao = observacao + 'Verificar a agência e conta na descrição da NFS-e.'
 
             novoNome = f"01-NFSE {nomeProfessor}.pdf"
-            duplicado = renomearArquivoDrive(service_drive, arquivo['id'], novoNome, idPasta)
+            novoNome, duplicado = renomearArquivoDrive(service_drive, os.path.splitext(arquivo)[0], novoNome, idPasta)
             
             if duplicado:
                 observacao += 'Existem arquivos de NFSE duplicados. '
 
-            lancamentoControle(id, 'L', valido, observacao, valorNota, numeroNota, cliente_gspread, planilhaID)
+            lancamentoControle(idProfessor, 'L', valido, observacao, valorNota, numeroNota, cliente_gspread, planilhaID)
