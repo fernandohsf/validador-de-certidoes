@@ -22,7 +22,7 @@ def lancamentoControle(idProfessor, letraControle, valido, observacao, valorNota
 
     try:
         if observacao == 'Existem arquivos de NFSE duplicados. ':
-            print('Arquivo duplicado.')
+            print('Existem arquivos de NFSE duplicados.')
         else:
             if letraControle == 'L':                
                 updates.append({

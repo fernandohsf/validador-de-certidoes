@@ -23,14 +23,14 @@ def main():
 
     print('\nMe conectando ao google.')
     service_drive, cliente_gspread = autenticarGoogleAPI()
-    print('Vou pegar as informações necessárias agora.')
+    print('Buscando informações essenciais para iniciar.')
     dadosBaseCadastro, dadosBaseAnalise = atualizarBase(planilhaID, cliente_gspread)
     idPastaMesAnterior = BuscarPastaMesAnterior(service_drive, diretorioBaseDrive)
     pastas = listarArquivosDrive(service_drive, idPastaMesAnterior)
     time.sleep(1)
     print('Todas as informações foram obtdas com sucesso!')
     time.sleep(1)
-    print('Vou iniciar as análises.')
+    print('\nVou iniciar as análises.')
 
     for pasta in pastas:
         idProfessor, nomeProfessor = identificacao(pasta['name'])
@@ -40,10 +40,10 @@ def main():
         if str(idProfessor) in dadosBaseAnalise:
             status = dadosBaseAnalise[str(idProfessor)].get("Documentos estão aptos para seguir para pagamento?", "Status não encontrado")
             if status == 'Apto':
-                print('Este professor(a) está com o status de APTO na planilha, por isso não irei analisar.\nVou para o próximo da lista.\n')
+                print('Este professor(a) está com o status de APTO na planilha, por isso não irei analisar.\nVou para o próximo da lista.')
                 continue
             if status == 'Inapto':
-                print('Este professor(a) está com o status de INAPTO na planilha, por isso não irei analisar.\nVou para o próximo da lista.\n')
+                print('Este professor(a) está com o status de INAPTO na planilha, por isso não irei analisar.\nVou para o próximo da lista.')
                 continue
 
             time.sleep(1)
@@ -55,22 +55,20 @@ def main():
             arquivos = listarArquivosDrive(service_drive, idPastaProfessor)
             baixarTodosArquivos(service_drive, arquivos, downloadsTemp)
 
-            print('\nIniciando análise da NFSE (Nota fiscal de serviço eletrônica). \nAguarde...')
-            validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
-            print('Análise concluída.')
+            validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)            
 
             time.sleep(1)
-            print(f'Terminei os documentos do professor(a) {idProfessor}-{nomeProfessor}.\n')
+            print(f'Terminei os documentos deste professor(a)\n')
 
             
-    print('Finalizei a verificação de todos os professores que estavam disponíveis para análise.')
+    print('Verificação concluída! Todos os professores disponíveis foram analisados com sucesso.')
     time.sleep(1)
-    print('Até a próxima.')
-    input('Pessione a tecla enter para encerrar...')
+    print('Caso precise de ajuda no futuro, estarei aqui.')
+    input('Pressione a tecla Enter para finalizar o programa e encerrar o Nexus...')
 
 if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        print(f"Ocorreu um erro: {e}")
-        input("Pressione Enter para fechar...")
+        print(f"Ocorreu um erro inesperado durante o processo: {e}")
+        input("Pressione a tecla Enter para finalizar o programa e encerrar o Nexus...")
