@@ -77,7 +77,6 @@ def main():
             time.sleep(1)
             validarAtividades(service_drive, cliente_gspread, dadosBaseCadastro, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
 
-
             time.sleep(1)
             print(f'Terminei os documentos deste professor(a)\n')
 
