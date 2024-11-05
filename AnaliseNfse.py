@@ -38,7 +38,6 @@ def validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload
             if duplicado:
                 observacao += 'Existem arquivos de NFSE duplicados. '
                 lancamentoControle(idProfessor, 'L', '', observacao, '', '', cliente_gspread, planilhaID)
-                print('Análise concluída.')
                 continue
 
             conteudo = re.sub('\xa0', ' ', conteudo)

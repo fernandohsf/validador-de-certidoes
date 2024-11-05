@@ -37,7 +37,6 @@ def validarCNDU(service_drive, cliente_gspread, pastaDownload, idPasta, idProfes
             if duplicado:
                 observacao += 'Existem arquivos de CNDU duplicados. '
                 lancamentoControle(idProfessor, 'I', '', observacao, '', '', cliente_gspread, planilhaID)
-                print('Análise concluída.')
                 continue
 
             conteudo = re.sub('\xa0', ' ', conteudo)

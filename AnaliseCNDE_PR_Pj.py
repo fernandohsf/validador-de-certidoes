@@ -36,7 +36,6 @@ def validarCNDE_PR(service_drive, cliente_gspread, pastaDownload, idPasta, idPro
             if duplicado:
                 observacao += 'Existem arquivos de CNDE duplicados. '
                 lancamentoControle(idProfessor, 'N', '', observacao, '', '', cliente_gspread, planilhaID)
-                print('Análise concluída.')
                 continue
             conteudo = re.sub('\xa0', ' ', conteudo)
             conteudo = re.split('\n', conteudo)

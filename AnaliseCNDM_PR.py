@@ -139,7 +139,6 @@ def validarMunicipiosPR(service_drive, cliente_gspread, pastaDownload, idPasta, 
             if duplicado:
                 observacao += 'Existem arquivos de CNDM duplicados. '
                 lancamentoControle(idProfessor, 'H', '', observacao, '', '', cliente_gspread, planilhaID)
-                print('Análise concluída.')
                 continue
 
             try:

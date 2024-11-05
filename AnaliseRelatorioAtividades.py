@@ -34,7 +34,6 @@ def validarAtividades(service_drive, cliente_gspread, dadosBaseCadastro, pastaDo
             if duplicado:
                 observacao += 'Existem arquivos de relatório de atividades duplicados. '
                 lancamentoControle(idProfessor, 'M', '', observacao, '', '', cliente_gspread, planilhaID)
-                print('Análise concluída.')
                 continue
 
             conteudo = re.sub('\xa0', ' ', conteudo)

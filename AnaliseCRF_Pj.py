@@ -39,7 +39,6 @@ def validarCRF(service_drive, cliente_gspread, pastaDownload, idPasta, idProfess
             if duplicado:
                 observacao += 'Existem arquivos de CRF duplicados. '
                 lancamentoControle(idProfessor, 'K', '', observacao, '', '', cliente_gspread, planilhaID)
-                print('Análise concluída.')
                 continue
 
             conteudo = re.sub('\xa0', ' ', conteudo)

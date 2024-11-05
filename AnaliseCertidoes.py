@@ -82,7 +82,7 @@ def main():
             print(f'Terminei os documentos deste professor(a)\n')
 
     time.sleep(1)
-    print('Verificação concluída! Todos os professores disponíveis foram analisados com sucesso.')
+    print('\nVerificação concluída! Todos os professores disponíveis foram analisados com sucesso.')
     time.sleep(1)
     print('Caso precise de ajuda no futuro, estarei aqui.')
     time.sleep(1)
