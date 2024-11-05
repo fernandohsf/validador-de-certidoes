@@ -3,8 +3,14 @@ import sys
 import time
 import shutil
 from AnaliseNfse import validarNFSE
-from googleDrive import autenticarGoogleAPI, baixarTodosArquivos, listarArquivosDrive
+from AnaliseCRF_Pj import validarCRF
+from AnaliseCNDT_Pj import validarCNDT
+from AnaliseCNDU_Pj import validarCNDU
+from AnaliseCNDE_PR_Pj import validarCNDE_PR
+from AnaliseCNDM_PR import validarMunicipiosPR
+from AnaliseRelatorioAtividades import validarAtividades
 from Utils import BuscarPastaMesAnterior, atualizarBase, identificacao
+from googleDrive import autenticarGoogleAPI, baixarTodosArquivos, listarArquivosDrive
 
 def main():
     #planilhaID = '1L_GtpCUd3_2uNGj8l64s7zr41ajyBUxxtxtVhQ5inLk' # Produção
@@ -23,6 +29,7 @@ def main():
 
     print('\nMe conectando ao google.')
     service_drive, cliente_gspread = autenticarGoogleAPI()
+    time.sleep(1)
     print('Buscando informações essenciais para iniciar.')
     dadosBaseCadastro, dadosBaseAnalise = atualizarBase(planilhaID, cliente_gspread)
     idPastaMesAnterior = BuscarPastaMesAnterior(service_drive, diretorioBaseDrive)
@@ -54,16 +61,31 @@ def main():
             os.makedirs(downloadsTemp, exist_ok=True)
             arquivos = listarArquivosDrive(service_drive, idPastaProfessor)
             baixarTodosArquivos(service_drive, arquivos, downloadsTemp)
+            time.sleep(1)
 
-            validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)            
+            validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+            time.sleep(1)
+            validarCNDU(service_drive, cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+            time.sleep(1)
+            validarCNDT(service_drive, cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+            time.sleep(1)
+            validarCRF(service_drive, cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+            time.sleep(1)
+            validarCNDE_PR(service_drive, cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+            time.sleep(1)
+            validarMunicipiosPR(service_drive, cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+            time.sleep(1)
+            validarAtividades(service_drive, cliente_gspread, dadosBaseCadastro, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+
 
             time.sleep(1)
             print(f'Terminei os documentos deste professor(a)\n')
 
-            
+    time.sleep(1)
     print('Verificação concluída! Todos os professores disponíveis foram analisados com sucesso.')
     time.sleep(1)
     print('Caso precise de ajuda no futuro, estarei aqui.')
+    time.sleep(1)
     input('Pressione a tecla Enter para finalizar o programa e encerrar o Nexus...')
 
 if __name__ == "__main__":

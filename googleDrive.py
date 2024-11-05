@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import gspread
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
@@ -16,6 +17,7 @@ def autenticarGoogleAPI():
         creds = Credentials.from_service_account_file(caminhoCredenciais, scopes=scope)
         service_drive = build('drive', 'v3', credentials=creds)
         cliente_gspread = gspread.authorize(creds)
+        time.sleep(1)
         print('Consegui conectar com sucesso!')
         return service_drive, cliente_gspread
     except Exception as e:
