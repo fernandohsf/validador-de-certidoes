@@ -1,4 +1,4 @@
-
+import time
 from datetime import date
 
 def atualizarBase(planilhaID, cliente_gspread):
@@ -38,6 +38,9 @@ def atualizarBase(planilhaID, cliente_gspread):
         for linha in linhas_analise[1:]
     }
     
+    print('Informações das planilhas...')
+    time.sleep(1)
+    print('Feito.')
     return dadosBaseCadastro, dadosBaseAnalise
 
 def buscarPasta(service, nomePasta, idPastaPai=None):
@@ -85,7 +88,10 @@ def BuscarPastaMesAnterior(service, idDiretorioBase):
             break
     
     idPastaMesAnterior = buscarPasta(service, nome_pasta, idPastaPai=idPastaEmail)
-    
+
+    print('Informações do google drive...')
+    time.sleep(1)
+    print('Feito.')    
     return idPastaMesAnterior
 
 def identificacao(pasta):

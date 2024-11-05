@@ -16,6 +16,7 @@ def autenticarGoogleAPI():
         creds = Credentials.from_service_account_file(caminhoCredenciais, scopes=scope)
         service_drive = build('drive', 'v3', credentials=creds)
         cliente_gspread = gspread.authorize(creds)
+        print('Consegui conectar com sucesso!')
         return service_drive, cliente_gspread
     except Exception as e:
         print(f"Erro ao autenticar Google Drive: {e}")
@@ -42,6 +43,7 @@ def baixarTodosArquivos(service, arquivos, pastaTemp):
             fh.close()
         except Exception as e:
             print(f"Erro ao baixar arquivo: {e}")
+    print('Downloads concluídos com sucesso.')
 
 def renomearArquivoDrive(service, idArquivo, novoNome, idPasta):
     # Verificar se o arquivo é o que está sendo renomeado
