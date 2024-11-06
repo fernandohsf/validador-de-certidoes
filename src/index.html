@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus - Assistente Virtual</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <main>
+        <div id="mensagens">
+            
+        </div>
+
+        <div id="sketch-board-con">
+            <div id="sketch-board">
+                <div id="head">
+                    <div id="lens">
+                        <div id="upper-shadow"></div>
+                        <div id="rect"></div>
+                        <div id="eyes"></div>
+                    </div>
+                </div>
+                <div id="ear">
+                    <div id="ear-antenna"></div>
+                </div>
+                <div id="small-cap"></div>
+                <div id="body">
+                    <div id="shadow-box"></div>
+                    <div id="pocket-area">
+                        <div id="pocket"></div>
+                    </div>
+                </div>
+                <div id="hands">
+                    <div class="hand"></div>
+                    <div class="hand"></div>
+                </div>
+            </div>
+            <div id="robot-shadow"></div>
+        </div>
+    </main>
+    <script>
+        window.onload = function() {
+            pywebview.api.interface_carregada()
+        };
+
+        function adicionarMensagem(texto) {
+            const mensagensDiv = document.getElementById("mensagens");
+            const novaMensagem = document.createElement("div");
+            const quebraDeLinha = document.createElement("br");
+            novaMensagem.className = "mensagem";
+            novaMensagem.innerHTML = texto;
+            mensagensDiv.appendChild(novaMensagem);
+            mensagensDiv.appendChild(quebraDeLinha)
+            mensagensDiv.scrollTop = mensagensDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>

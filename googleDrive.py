@@ -6,7 +6,7 @@ from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
 from googleapiclient.http import MediaIoBaseDownload
 
-def autenticarGoogleAPI():
+def autenticarGoogleAPI(nexusApi):
     caminhoExe = os.path.dirname(os.path.abspath(sys.argv[0]))
     caminhoCredenciais = os.path.join(caminhoExe, 'credenciais_google.json')
     scope = [
@@ -18,10 +18,10 @@ def autenticarGoogleAPI():
         service_drive = build('drive', 'v3', credentials=creds)
         cliente_gspread = gspread.authorize(creds)
         time.sleep(1)
-        print('Consegui conectar com sucesso!')
+        nexusApi.enviar_mensagem('Consegui conectar com sucesso!')
         return service_drive, cliente_gspread
     except Exception as e:
-        print(f"Erro ao autenticar Google Drive: {e}")
+        nexusApi.enviar_mensagem(f"Erro ao autenticar Google Drive: {e}")
         return None
 
 def listarArquivosDrive(service, idPasta):
@@ -29,7 +29,7 @@ def listarArquivosDrive(service, idPasta):
     resultados = service.files().list(q=query, fields="files(id, name, modifiedTime)").execute()
     return resultados.get('files', [])
 
-def baixarTodosArquivos(service, arquivos, pastaTemp):
+def baixarTodosArquivos(service, arquivos, pastaTemp, nexusApi):
     for arquivo in arquivos:
         if not arquivo['name'].lower().endswith('.pdf'):
             continue
@@ -44,8 +44,8 @@ def baixarTodosArquivos(service, arquivos, pastaTemp):
                     status, done = downloader.next_chunk()
             fh.close()
         except Exception as e:
-            print(f"Erro ao baixar arquivo: {e}")
-    print('Downloads concluídos com sucesso.')
+            nexusApi.enviar_mensagem(f"Erro ao baixar arquivo: {e}")
+    nexusApi.enviar_mensagem('Downloads concluídos com sucesso.')
 
 def renomearArquivoDrive(service, idArquivo, novoNome, idPasta):
     # Verificar se o arquivo é o que está sendo renomeado

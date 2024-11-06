@@ -1,7 +1,8 @@
 import time
 from datetime import date
 
-def atualizarBase(planilhaID, cliente_gspread):
+def atualizarBase(planilhaID, cliente_gspread, nexusApi):
+    nexusApi.enviar_mensagem('Informações das planilhas...')
     try:
         planilha_cadastro = cliente_gspread.open_by_key(planilhaID).worksheet('Cadastro')
         linhas_cadastro = planilha_cadastro.get_all_values()
@@ -11,7 +12,7 @@ def atualizarBase(planilhaID, cliente_gspread):
         linhas_analise = planilha_analise.get_all_values()
 
     except Exception as e:
-        print(f"Erro ao acessar as planilhas: {e}")
+        nexusApi.enviar_mensagem(f"Erro ao acessar as planilhas: {e}")
         return {}, {}
 
     # Processa dados da planilha Cadastro
@@ -37,10 +38,7 @@ def atualizarBase(planilhaID, cliente_gspread):
         }
         for linha in linhas_analise[1:]
     }
-    
-    print('Informações das planilhas...')
-    time.sleep(1)
-    print('Feito.')
+    nexusApi.enviar_mensagem('Feito.')
     return dadosBaseCadastro, dadosBaseAnalise
 
 def buscarPasta(service, nomePasta, idPastaPai=None):
@@ -55,7 +53,8 @@ def buscarPasta(service, nomePasta, idPastaPai=None):
         return arquivos[0]['id']  # Retorna o ID da primeira pasta encontrada
     return None
 
-def BuscarPastaMesAnterior(service, idDiretorioBase):
+def BuscarPastaMesAnterior(service, idDiretorioBase, nexusApi):
+    nexusApi.enviar_mensagem('Informações do google drive...')
     anoVigente = date.today().year
     mesAnterior = date.today().month-1
     anoAbreviado = date.today().strftime('%y')
@@ -66,17 +65,17 @@ def BuscarPastaMesAnterior(service, idDiretorioBase):
     
     idPastaAnual = buscarPasta(service, str(pastaAnual), idPastaPai=idDiretorioBase)
     if not idPastaAnual:
-        print(f"Pasta do ano {pastaAnual} não encontrada.")
+        nexusApi.enviar_mensagem(f"Pasta do ano {pastaAnual} não encontrada.")
         return None
     
     idPastaAnalise = buscarPasta(service, 'Análise de Documentos' ,idPastaPai=idPastaAnual)
     if not idPastaAnalise:
-        print("Pasta 'Análise de Documentos' não encontrada.")
+        nexusApi.enviar_mensagem("Pasta 'Análise de Documentos' não encontrada.")
         return None
     
     idPastaEmail = buscarPasta(service, 'e-Mail', idPastaPai=idPastaAnalise)
     if not idPastaEmail:
-        print("Pasta 'e-Mail' não encontrada.")
+        nexusApi.enviar_mensagem("Pasta 'e-Mail' não encontrada.")
         return None    
     
     for mesPasta in mes:
@@ -89,9 +88,7 @@ def BuscarPastaMesAnterior(service, idDiretorioBase):
     
     idPastaMesAnterior = buscarPasta(service, nome_pasta, idPastaPai=idPastaEmail)
 
-    print('Informações do google drive...')
-    time.sleep(1)
-    print('Feito.')    
+    nexusApi.enviar_mensagem('Feito.')    
     return idPastaMesAnterior
 
 def identificacao(pasta):

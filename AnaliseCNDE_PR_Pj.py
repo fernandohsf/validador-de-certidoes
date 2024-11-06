@@ -6,8 +6,8 @@ from MunicipiosPR.Interacoes.validade import verificarDataValidade
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
 from googleDrive import renomearArquivoDrive
 
-def validarCNDE_PR(service_drive, cliente_gspread, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID):
-    print('Iniciando análise da CNDE-PR (Certidão negativa de débitos estaduais do Paraná). \nAguarde...')
+def validarCNDE_PR(service_drive, cliente_gspread, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID, nexusApi):
+    nexusApi.enviar_mensagem('Iniciando análise da CNDE-PR (Certidão negativa de débitos estaduais do Paraná).')
     data = datetime.today()
 
     for arquivo in os.listdir(pastaDownload):
@@ -60,4 +60,4 @@ def validarCNDE_PR(service_drive, cliente_gspread, pastaDownload, idPasta, idPro
                 observacao = observacao + 'Certidão CNDE não é jurídica ou CNPJ inválido. '
 
             lancamentoControle(idProfessor, 'N', valido, observacao, '', '', cliente_gspread, planilhaID)
-    print('Análise concluída.')
+    nexusApi.enviar_mensagem('Análise concluída.')

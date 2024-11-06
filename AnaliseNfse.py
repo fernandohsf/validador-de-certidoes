@@ -6,8 +6,8 @@ from datetime import datetime
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
 from googleDrive import renomearArquivoDrive
 
-def validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID):
-    print('Iniciando análise da NFSE (Nota fiscal de serviço eletrônica). \nAguarde...')
+def validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID, nexusApi):
+    nexusApi.enviar_mensagem('Iniciando análise da NFSE (Nota fiscal de serviço eletrônica).')
     data = datetime.today()
 
     for arquivo in os.listdir(pastaDownload):
@@ -166,4 +166,4 @@ def validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload
                 observacao = observacao + 'Verificar a agência e conta na descrição da NFS-e.'
 
             lancamentoControle(idProfessor, 'L', valido, observacao, valorNota, numeroNota, cliente_gspread, planilhaID)
-    print('Análise concluída.')
+    nexusApi.enviar_mensagem('Análise concluída.')
