@@ -18,7 +18,7 @@ def autenticarGoogleAPI(nexusApi):
         service_drive = build('drive', 'v3', credentials=creds)
         cliente_gspread = gspread.authorize(creds)
         time.sleep(1)
-        nexusApi.enviar_mensagem('Consegui conectar com sucesso!')
+        nexusApi.enviar_mensagem('Conectei com sucesso!')
         return service_drive, cliente_gspread
     except Exception as e:
         nexusApi.enviar_mensagem(f"Erro ao autenticar Google Drive: {e}")

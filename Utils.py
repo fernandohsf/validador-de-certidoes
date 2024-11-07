@@ -2,7 +2,7 @@ import time
 from datetime import date
 
 def atualizarBase(planilhaID, cliente_gspread, nexusApi):
-    nexusApi.enviar_mensagem('Informações das planilhas...')
+    nexusApi.enviar_mensagem('Informações do google planilhas...')
     try:
         planilha_cadastro = cliente_gspread.open_by_key(planilhaID).worksheet('Cadastro')
         linhas_cadastro = planilha_cadastro.get_all_values()
