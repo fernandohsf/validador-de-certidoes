@@ -1,0 +1,10 @@
+*{
+    margin: 0;
+    box-sizing: border-box;
+    scrollbar-width: thin;
+    scrollbar-color: #007 #000;
+  }
+  
+*::-webkit-scrollbar-track {
+    background: #070d12;
+}

@@ -46,6 +46,10 @@ class NexusAPI:
         if self.window:
             self.window.destroy()
 
+    def minimizar_tela(self):
+        if self.window:
+            self.window.minimize()
+
     def iniciar_analise(self):
         #planilhaID = '1L_GtpCUd3_2uNGj8l64s7zr41ajyBUxxtxtVhQ5inLk' # Produção
         #diretorioBaseDrive = '1ZinjciG-RUIi_cZxZzi2k-4YaNgm1Gft' # Produção
@@ -113,14 +117,15 @@ class NexusAPI:
         self.enviar_mensagem('O que quer fazer?')
         time.sleep(1)
         self.adicionar_botao('Reiniciar análise', 'btn-reiniciar-analise')
-        self.adicionar_botao('Encerrar Nexus', 'btn-encerrar')
+        self.adicionar_botao('Encerrar', 'btn-encerrar')
 
 def iniciar_interface():
+    largura = 800
+    altura = 600
     api = NexusAPI()
-    window = webview.create_window('Nexus - Assistente Virtual', 'index.html')
+    window = webview.create_window('Nexus - Assistente Virtual', 'index.html', width=largura, height=altura, frameless= True, resizable=False)
     api.window = window
-    window.expose(api.iniciar_analise)
-    window.expose(api.encerramento)
+    window.expose(api.iniciar_analise, api.encerramento, api.minimizar_tela)
     window.events.loaded += api.saudacao
     webview.start()
 

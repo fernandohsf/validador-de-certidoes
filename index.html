@@ -6,13 +6,20 @@
     <title>Nexus - Assistente Virtual</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="src/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300;1,300&family=Itim&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/css/reset.css">
+    <link rel="stylesheet" href="src/css/nexus.css">
+    <link rel="stylesheet" href="src/css/mensagens.css">
+    <link rel="stylesheet" href="src/css/navegacaoBorda.css">
 </head>
 <body>
     <main>
+        <div id="menu">
+            <button class="botao-menu minimizar" onclick="window.pywebview.api.minimizar_tela()">_</button>
+            <button class="botao-menu fechar" onclick="window.pywebview.api.encerramento()">X</button>
+        </div>
         <div id="mensagens">
-
+            
         </div>
 
         <div id="sketch-board-con">

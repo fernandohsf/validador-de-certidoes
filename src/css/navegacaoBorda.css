@@ -1,0 +1,36 @@
+#menu {
+    top: 5px;
+    right: 5px;
+    position: absolute;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.botao-menu {
+    width: 30px;
+    height: 30px;
+    color: #FFF;
+    border-radius: 50%;
+    font-family: "Itim", cursive;
+    font-size: 18px;
+    cursor: pointer;
+    transition: ease-out 0.4s;
+    position: relative;
+    margin-left: 5px;
+}
+
+.botao-menu:hover {
+    border: 2px solid #fff;
+}
+
+.minimizar{
+    background-color: #EB9532;
+    border: 2px solid #EB9532;
+}
+
+.fechar{
+    background-color: #C82647;
+    border: 2px solid #C82647;
+}

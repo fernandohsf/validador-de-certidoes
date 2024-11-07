@@ -1,8 +1,3 @@
-*{
-    margin: 0;
-    box-sizing: border-box;
-}
-
 html, body, main{
     height: 100%;
 }
@@ -213,6 +208,10 @@ main {
     width: 60px;
     height: 50px;
     background-color: #0cf;
+    background-image: url('../imagens/Fapec-logo.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 37px;
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
@@ -285,53 +284,3 @@ main {
         transform: translateY(50px);
     }
 }
-
-#mensagens {
-    width: 500px;
-    max-height: 550px;
-    overflow-y: auto;
-    margin: 0 auto;
-    padding: 10px;
-    text-align: center;
-    font-size: 1.2em;
-    color: #333;
-}
-.mensagem {
-    display: inline-block;
-    margin-top: 5px;
-    padding: 5px;
-    background-color: #e0f7fa;
-    border-radius: 5px;
-    font-family: 'Hanken Grotesk', 'sans-serif';
-}
-
-.botao-interacao{
-    margin-top: 20px;
-    margin-bottom: 20px;
-    padding: 5px;
-    font-size: 1.2em;
-    border-radius: 20px;
-    background-color: #e0f7fa;
-    border-color: #000;
-    color: #333;
-    
-}
-
-.botao-interacao:hover{
-    background-color: #04f;
-    border-color: #007;
-    color: #aac;
-    filter: drop-shadow(0 0 5px #09f)
-    drop-shadow(0 0 7px #09f)
-    drop-shadow(0 0 10px #09f);
-    cursor: pointer;
-}
-
-* {
-    scrollbar-width: thin;
-    scrollbar-color: #007 #000;
-  }
-  
-  *::-webkit-scrollbar-track {
-    background: #070d12;
-  }

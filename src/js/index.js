@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Define a função adicionarMensagem e expõe ao escopo global
+    const mensagensDiv = document.getElementById("mensagens");
     function adicionarMensagem(texto) {
-        const mensagensDiv = document.getElementById("mensagens");
         const novaMensagem = document.createElement("div");
         novaMensagem.className = "mensagem";
         novaMensagem.innerHTML = texto;
@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         node.addEventListener('click', function() {
                             window.pywebview.api.iniciar_analise();
                         });
-                        const mensagensDiv = document.getElementById("mensagens")
                         mensagensDiv.appendChild(document.createElement("br"));
                     }
                     if (node.id === 'btn-reiniciar-analise') {
@@ -34,12 +33,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             window.pywebview.api.encerramento();
                         });
                     }
-                    document.getElementById('mensagens').scrollTop = document.getElementById('mensagens').scrollHeight;
+                    mensagensDiv.scrollTop = mensagensDiv.scrollHeight;
                 });
             }
         });
     });
 
     // Observa mudanças no `mensagensDiv`
-    observer.observe(document.getElementById('mensagens'), { childList: true });
+    observer.observe(mensagensDiv, { childList: true });
 });
