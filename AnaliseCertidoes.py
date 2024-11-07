@@ -1,6 +1,5 @@
 import os
 import sys
-import threading
 import time
 import shutil
 import webview 
@@ -22,19 +21,13 @@ class NexusAPI:
         if self.window:
             mensagem_formatada = mensagem.replace("\n", "<br>")
             self.window.evaluate_js(f"adicionarMensagem('{mensagem_formatada}')")
+    
+    def adicionar_botao(self, texto_botao, id_botao):
+        if self.window:
+            html_botao = f'<button id="{id_botao}" class="botao-interacao">{texto_botao}</button>'
+            self.window.evaluate_js(f"document.getElementById('mensagens').innerHTML += '{html_botao}';")
 
-    def interface_carregada(self):
-        self.interface_pronta = True
-        self.enviar_mensagem('Interface carregada com sucesso!')
-        self.iniciar_analise()
-
-    def iniciar_analise(self):
-        
-        #planilhaID = '1L_GtpCUd3_2uNGj8l64s7zr41ajyBUxxtxtVhQ5inLk' # Produção
-        #diretorioBaseDrive = '1ZinjciG-RUIi_cZxZzi2k-4YaNgm1Gft' # Produção
-        planilhaID = '1GSSDC9MOqEp3AuQJGe1DD9vV9Crdk7vHQGX9jhlPjOk' # Homologação
-        diretorioBaseDrive = '1yq5i3L1tHrztWPTiSVrwYKSFgpEy9DDl' # Homologação
-
+    def saudacao(self):
         self.enviar_mensagem('Olá.')
         time.sleep(1)
         self.enviar_mensagem('Eu sou o Nexus, o ajudante virtual da FAPEC.')
@@ -42,7 +35,22 @@ class NexusAPI:
         self.enviar_mensagem('Estou aqui para te ajudar a verificar as certidões negativas de débitos que estão em formato PDF.')
         time.sleep(1)
         self.enviar_mensagem('Vamos começar?')
-        time.sleep(2)
+        time.sleep(1)
+        self.adicionar_botao('Iniciar análise', 'btn-iniciar-analise')
+
+    def encerramento(self):
+        self.enviar_mensagem('Caso precise de ajuda no futuro, estarei aqui.')
+        time.sleep(1)
+        self.enviar_mensagem('Até a próxima.')
+        time.sleep(3)
+        if self.window:
+            self.window.destroy()
+
+    def iniciar_analise(self):
+        #planilhaID = '1L_GtpCUd3_2uNGj8l64s7zr41ajyBUxxtxtVhQ5inLk' # Produção
+        #diretorioBaseDrive = '1ZinjciG-RUIi_cZxZzi2k-4YaNgm1Gft' # Produção
+        planilhaID = '1GSSDC9MOqEp3AuQJGe1DD9vV9Crdk7vHQGX9jhlPjOk' # Homologação
+        diretorioBaseDrive = '1yq5i3L1tHrztWPTiSVrwYKSFgpEy9DDl' # Homologação
 
         self.enviar_mensagem('Me conectando ao google.')
         service_drive, cliente_gspread = autenticarGoogleAPI(self)
@@ -95,20 +103,25 @@ class NexusAPI:
                 validarAtividades(service_drive, cliente_gspread, dadosBaseCadastro, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID, self)
 
                 time.sleep(1)
-                self.enviar_mensagem(f'Terminei os documentos deste professor(a)\n')
+                self.enviar_mensagem(f'Terminei os documentos deste professor(a)')
 
         time.sleep(1)
         self.enviar_mensagem('Verificação concluída! Todos os professores disponíveis foram analisados com sucesso.')
         time.sleep(1)
-        self.enviar_mensagem('Caso precise de ajuda no futuro, estarei aqui.')
+        self.enviar_mensagem('Se houver novos documentos podemos reiniciar a análise ou podemos somente encerrar.')
         time.sleep(1)
-        #input('Pressione a tecla Enter para finalizar o programa e encerrar o Nexus...')
+        self.enviar_mensagem('O que quer fazer?')
+        time.sleep(1)
+        self.adicionar_botao('Reiniciar análise', 'btn-reiniciar-analise')
+        self.adicionar_botao('Encerrar Nexus', 'btn-encerrar')
 
 def iniciar_interface():
     api = NexusAPI()
-    window = webview.create_window('Nexus - Assistente Virtual', 'src\\index.html')
+    window = webview.create_window('Nexus - Assistente Virtual', 'index.html')
     api.window = window
-    threading.Thread(target=api.iniciar_analise).start()
+    window.expose(api.iniciar_analise)
+    window.expose(api.encerramento)
+    window.events.loaded += api.saudacao
     webview.start()
 
 if __name__ == "__main__":

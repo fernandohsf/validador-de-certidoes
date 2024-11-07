@@ -7,12 +7,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="src/css/style.css">
 </head>
 <body>
     <main>
         <div id="mensagens">
-            
+
         </div>
 
         <div id="sketch-board-con">
@@ -42,21 +42,6 @@
             <div id="robot-shadow"></div>
         </div>
     </main>
-    <script>
-        window.onload = function() {
-            pywebview.api.interface_carregada()
-        };
-
-        function adicionarMensagem(texto) {
-            const mensagensDiv = document.getElementById("mensagens");
-            const novaMensagem = document.createElement("div");
-            const quebraDeLinha = document.createElement("br");
-            novaMensagem.className = "mensagem";
-            novaMensagem.innerHTML = texto;
-            mensagensDiv.appendChild(novaMensagem);
-            mensagensDiv.appendChild(quebraDeLinha)
-            mensagensDiv.scrollTop = mensagensDiv.scrollHeight;
-        }
-    </script>
+    <script src="src/js/index.js"></script>
 </body>
 </html>

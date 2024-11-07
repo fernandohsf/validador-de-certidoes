@@ -21,9 +21,7 @@ def lancamentoControle(idProfessor, letraControle, valido, observacao, valorNota
     updates = []
 
     try:
-        if observacao == 'Existem arquivos de NFSE duplicados. ':
-            print('Existem arquivos de NFSE duplicados.')
-        else:
+        if not observacao == 'Existem arquivos de NFSE duplicados. ':
             if letraControle == 'L':                
                 updates.append({
                     'range': f'P{index}',  # Status da coluna P
@@ -48,37 +46,37 @@ def lancamentoControle(idProfessor, letraControle, valido, observacao, valorNota
                     'values': [[valido]]
                 })
 
-            if letraControle == 'M':
-                if planilha.cell(index, 26).value != '' and planilha.cell(index, 26).value != str(numeroNota): # Z
-                    observacao += 'O Número da NFS-e no relatório de atividades está diferente da nota. '
+        if letraControle == 'M':
+            if planilha.cell(index, 26).value != '' and planilha.cell(index, 26).value != str(numeroNota): # Z
+                observacao += 'O Número da NFS-e no relatório de atividades está diferente da nota. '
 
-                # Verifica se tem todos os 7 documentos
-                valores_colunas_h_a_n = planilha.get(f'H{index}:N{index}')[0]  # Obtém a linha como uma lista
-                todosDocs = 'Não'
-                if all(valor != '' for valor in valores_colunas_h_a_n):
-                    updates.append({
-                        'range': f'O{index}',
-                        'values': [['Sim']]
-                    })
-                    todosDocs = 'Sim'
-                
-                if (valores_colunas_h_a_n[0] == 'Sim' and  # H
-                    valores_colunas_h_a_n[1] == 'Sim' and  # I
-                    valores_colunas_h_a_n[2] == 'Sim' and  # J
-                    valores_colunas_h_a_n[3] == 'Sim' and  # K
-                    valores_colunas_h_a_n[5] == 'Sim' and  # M
-                    valores_colunas_h_a_n[6] == 'Sim' and  # N
-                    todosDocs == 'Sim'):
-                    updates.append({
-                        'range': f'P{index}',
-                        'values': [['Apto']]
-                    })
+            # Verifica se tem todos os 7 documentos
+            valores_colunas_h_a_n = planilha.get(f'H{index}:N{index}')[0]  # Obtém a linha como uma lista
+            todosDocs = 'Não'
+            if all(valor != '' for valor in valores_colunas_h_a_n):
+                updates.append({
+                    'range': f'O{index}',
+                    'values': [['Sim']]
+                })
+                todosDocs = 'Sim'
+            
+            if (valores_colunas_h_a_n[0] == 'Sim' and  # H
+                valores_colunas_h_a_n[1] == 'Sim' and  # I
+                valores_colunas_h_a_n[2] == 'Sim' and  # J
+                valores_colunas_h_a_n[3] == 'Sim' and  # K
+                valores_colunas_h_a_n[5] == 'Sim' and  # M
+                valores_colunas_h_a_n[6] == 'Sim' and  # N
+                todosDocs == 'Sim'):
+                updates.append({
+                    'range': f'P{index}',
+                    'values': [['Apto']]
+                })
 
-                else:
-                    updates.append({
-                        'range': f'P{index}',
-                        'values': [['Inapto']]
-                    })
+            else:
+                updates.append({
+                    'range': f'P{index}',
+                    'values': [['Inapto']]
+                })
 
         if (observacao != ''):
             observacao = f'\n{data}: {observacao}'

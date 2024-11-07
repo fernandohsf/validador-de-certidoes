@@ -305,6 +305,28 @@ main {
     font-family: 'Hanken Grotesk', 'sans-serif';
 }
 
+.botao-interacao{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 5px;
+    font-size: 1.2em;
+    border-radius: 20px;
+    background-color: #e0f7fa;
+    border-color: #000;
+    color: #333;
+    
+}
+
+.botao-interacao:hover{
+    background-color: #04f;
+    border-color: #007;
+    color: #aac;
+    filter: drop-shadow(0 0 5px #09f)
+    drop-shadow(0 0 7px #09f)
+    drop-shadow(0 0 10px #09f);
+    cursor: pointer;
+}
+
 * {
     scrollbar-width: thin;
     scrollbar-color: #007 #000;
