@@ -12,6 +12,8 @@ from AnaliseCNDM_PR import validarMunicipiosPR
 from AnaliseRelatorioAtividades import validarAtividades
 from Utils import BuscarPastaMesAnterior, atualizarBase, identificacao
 from googleDrive import autenticarGoogleAPI, baixarTodosArquivos, listarArquivosDrive
+import tkinter as tk
+from tkinter import messagebox
 
 class NexusAPI:
     def __init__(self):
@@ -22,10 +24,11 @@ class NexusAPI:
             mensagem_formatada = mensagem.replace("\n", "<br>")
             self.window.evaluate_js(f"adicionarMensagem('{mensagem_formatada}')")
     
-    def adicionar_botao(self, texto_botao, id_botao):
+    def adicionar_botao(self, id_botao, texto_botao, funcao):
         if self.window:
-            html_botao = f'<button id="{id_botao}" class="botao-interacao">{texto_botao}</button>'
+            html_botao = f'<button id="{id_botao}" class="botao-interacao" onclick="{funcao}">{texto_botao}</button>'
             self.window.evaluate_js(f"document.getElementById('mensagens').innerHTML += '{html_botao}';")
+            self.window.evaluate_js('document.getElementById("mensagens").scrollTop = document.getElementById("mensagens").scrollHeight;')
 
     def saudacao(self):
         self.enviar_mensagem('Olá.')
@@ -36,7 +39,7 @@ class NexusAPI:
         time.sleep(1)
         self.enviar_mensagem('Vamos começar?')
         time.sleep(1)
-        self.adicionar_botao('Iniciar análise', 'btn-iniciar-analise')
+        self.adicionar_botao('btn-iniciar-analise', 'Iniciar análise', 'window.pywebview.api.iniciar_analise()')
 
     def encerramento(self):
         self.enviar_mensagem('Caso precise de ajuda no futuro, estarei aqui.')
@@ -45,18 +48,19 @@ class NexusAPI:
         time.sleep(3)
         if self.window:
             self.window.destroy()
-
+        
     def minimizar_tela(self):
         if self.window:
             self.window.minimize()
 
     def iniciar_analise(self):
+        self.window.evaluate_js('document.getElementById("btn-iniciar-analise").disabled = true;')
         #planilhaID = '1L_GtpCUd3_2uNGj8l64s7zr41ajyBUxxtxtVhQ5inLk' # Produção
         #diretorioBaseDrive = '1ZinjciG-RUIi_cZxZzi2k-4YaNgm1Gft' # Produção
         planilhaID = '1GSSDC9MOqEp3AuQJGe1DD9vV9Crdk7vHQGX9jhlPjOk' # Homologação
         diretorioBaseDrive = '1yq5i3L1tHrztWPTiSVrwYKSFgpEy9DDl' # Homologação
 
-        self.enviar_mensagem('Me conectando ao google.')
+        self.enviar_mensagem('Tentando me conectar ao google.')
         service_drive, cliente_gspread = autenticarGoogleAPI(self)
         time.sleep(1)
         self.enviar_mensagem('Buscando informações essenciais para iniciar.')
@@ -116,8 +120,8 @@ class NexusAPI:
         time.sleep(1)
         self.enviar_mensagem('O que quer fazer?')
         time.sleep(1)
-        self.adicionar_botao('Reiniciar análise', 'btn-reiniciar-analise')
-        self.adicionar_botao('Encerrar', 'btn-encerrar')
+        self.adicionar_botao('btn-reiniciar-analise', 'Reiniciar análise', 'window.pywebview.api.iniciar_analise()')
+        self.adicionar_botao('btn-encerrar', 'Encerrar', 'showTelaConfirmacao()')
 
 def iniciar_interface():
     largura = 800
@@ -125,7 +129,7 @@ def iniciar_interface():
     api = NexusAPI()
     window = webview.create_window('Nexus - Assistente Virtual', 'index.html', width=largura, height=altura, frameless= True, resizable=False)
     api.window = window
-    window.expose(api.iniciar_analise, api.encerramento, api.minimizar_tela)
+    window.expose(api.enviar_mensagem, api.iniciar_analise, api.encerramento, api.minimizar_tela)
     window.events.loaded += api.saudacao
     webview.start()
 

@@ -16,7 +16,7 @@
     <main>
         <div id="menu">
             <button class="botao-menu minimizar" onclick="window.pywebview.api.minimizar_tela()">_</button>
-            <button class="botao-menu fechar" onclick="window.pywebview.api.encerramento()">X</button>
+            <button class="botao-menu fechar" onclick="showTelaConfirmacao()">X</button>
         </div>
         <div id="mensagens">
             
@@ -49,6 +49,13 @@
             <div id="robot-shadow"></div>
         </div>
     </main>
+    <div id="dialogo-confirmacao" class="dialogo-confirmacao" style="display: none;">
+        <div class="modal-content">
+            <p>Tem certeza de que deseja encerrar?</p>
+            <button id="botao-confirmar">Sim</button>
+            <button id="botao-cancelar">Não</button>
+        </div>
+    </div>
     <script src="src/js/index.js"></script>
 </body>
 </html>
