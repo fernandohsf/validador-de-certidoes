@@ -12,8 +12,6 @@ from AnaliseCNDM_PR import validarMunicipiosPR
 from AnaliseRelatorioAtividades import validarAtividades
 from Utils import BuscarPastaMesAnterior, atualizarBase, identificacao
 from googleDrive import autenticarGoogleAPI, baixarTodosArquivos, listarArquivosDrive
-import tkinter as tk
-from tkinter import messagebox
 
 class NexusAPI:
     def __init__(self):
@@ -127,7 +125,7 @@ def iniciar_interface():
     largura = 800
     altura = 600
     api = NexusAPI()
-    window = webview.create_window('Nexus - Assistente Virtual', 'index.html', width=largura, height=altura, frameless= True, resizable=False)
+    window = webview.create_window('Nexus - Assistente Virtual', 'interface\\index.html', width=largura, height=altura, frameless= True, resizable=False)
     api.window = window
     window.expose(api.enviar_mensagem, api.iniciar_analise, api.encerramento, api.minimizar_tela)
     window.events.loaded += api.saudacao

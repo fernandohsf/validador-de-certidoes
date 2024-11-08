@@ -1,8 +1,5 @@
 from cx_Freeze import setup, Executable
 
-# Caminho do arquivo principal
-script_principal = "D:/Projetos Python/Professor formador/AnaliseCertidoes.py"
-
 hidden_imports = [
     "MunicipiosPR.AnaliseAlmiranteTamandare",
     "MunicipiosPR.AnaliseAndira",
@@ -89,16 +86,24 @@ hidden_imports = [
 ]
 
 build_exe_options = {
-    "packages": ["fitz", "xlsxwriter", "google_auth_oauthlib", "googleapiclient", "gspread"],
+    "packages": ["fitz", "xlsxwriter", "google_auth_oauthlib", "googleapiclient", "gspread", "webview"],
     "excludes": [],
-    "include_files": ['D:\\AutomacaoFapec\\Professor formador\\credenciais_google.json'],
-    "includes": hidden_imports,
-    "optimize": 2  # Otimização de nível 2
+    "include_files": [
+        'D:/AutomacaoFapec/Professor formador/credenciais_google.json',
+        ('D:/AutomacaoFapec/Professor formador/interface/index.html', 'interface/index.html'),
+        ('D:/AutomacaoFapec/Professor formador/interface/src/css/mensagens.css', 'interface/src/css/mensagens.css'),
+        ('D:/AutomacaoFapec/Professor formador/interface/src/css/navegacaoBorda.css', 'interface/src/css/navegacaoBorda.css'),
+        ('D:/AutomacaoFapec/Professor formador/interface/src/css/nexus.css', 'interface/src/css/nexus.css'),
+        ('D:/AutomacaoFapec/Professor formador/interface/src/css/reset.css', 'interface/src/css/reset.css'),
+        ('D:/AutomacaoFapec/Professor formador/interface/src/imagens/Fapec-logo.png', 'interface/src/imagens/Fapec-logo.png'),
+        ('D:/AutomacaoFapec/Professor formador/interface/src/js/index.js', 'interface/src/js/index.js')
+        ],
+    "includes": hidden_imports
 }
 
 setup(
     name="Análise de certidões negativas de débitos",
-    version="3.0",
+    version="4.0",
     description="Análise de certidões negativas de débitos.",
     options={"build_exe": build_exe_options},
     executables=[Executable("AnaliseCertidoes.py")]
