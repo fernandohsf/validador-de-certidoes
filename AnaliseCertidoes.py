@@ -75,6 +75,10 @@ class NexusAPI:
             idPastaProfessor = pasta['id']
             time.sleep(1)
             self.enviar_mensagem(f'Verificando os documentos do(a) professor(a) {idProfessor} - {nomeProfessor}.')
+            downloadsTemp = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'Downloads')
+            if os.path.exists(downloadsTemp):
+                shutil.rmtree(downloadsTemp)
+
             if str(idProfessor) in dadosBaseAnalise:
                 status = dadosBaseAnalise[str(idProfessor)].get("Documentos estão aptos para seguir para pagamento?", "Status não encontrado")
                 if status == 'Apto':
@@ -86,9 +90,6 @@ class NexusAPI:
 
                 time.sleep(1)
                 self.enviar_mensagem('Fazendo o download dos documentos.')
-                downloadsTemp = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'Downloads')
-                if os.path.exists(downloadsTemp):
-                    shutil.rmtree(downloadsTemp)
                 os.makedirs(downloadsTemp, exist_ok=True)
                 arquivos = listarArquivosDrive(service_drive, idPastaProfessor)
                 baixarTodosArquivos(service_drive, arquivos, downloadsTemp, self)
