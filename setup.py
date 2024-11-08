@@ -98,8 +98,7 @@ build_exe_options = {
         ('D:/AutomacaoFapec/Professor formador/interface/src/imagens/Fapec-logo.png', 'interface/src/imagens/Fapec-logo.png'),
         ('D:/AutomacaoFapec/Professor formador/interface/src/js/index.js', 'interface/src/js/index.js')
         ],
-    "includes": hidden_imports,
-    "optimize": 2
+    "includes": hidden_imports
 }
 
 setup(
