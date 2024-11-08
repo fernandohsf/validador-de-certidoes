@@ -106,5 +106,5 @@ setup(
     version="4.0",
     description="Análise de certidões negativas de débitos.",
     options={"build_exe": build_exe_options},
-    executables=[Executable("AnaliseCertidoes.py")]
+    executables=[Executable("AnaliseCertidoes.py", base="Win32GUI")]
 )
