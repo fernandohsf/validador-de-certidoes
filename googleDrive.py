@@ -44,8 +44,8 @@ def baixarTodosArquivos(service, arquivos, pastaTemp, nexusApi):
                     status, done = downloader.next_chunk()
             fh.close()
         except Exception as e:
-            nexusApi.enviar_mensagem(f"Erro ao baixar arquivo: {e}")
-    nexusApi.enviar_mensagem('Downloads concluídos com sucesso.')
+            nexusApi.enviar_mensagem(f"Não consegui fazer o download do arquivo: {arquivo['name']}.")
+    nexusApi.enviar_mensagem('Download concluído.')
 
 def renomearArquivoDrive(service, idArquivo, novoNome, idPasta):
     # Verificar se o arquivo é o que está sendo renomeado

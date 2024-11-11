@@ -58,74 +58,82 @@ class NexusAPI:
         planilhaID = '1GSSDC9MOqEp3AuQJGe1DD9vV9Crdk7vHQGX9jhlPjOk' # Homologação
         diretorioBaseDrive = '1yq5i3L1tHrztWPTiSVrwYKSFgpEy9DDl' # Homologação
 
-        self.enviar_mensagem('Tentando me conectar ao google.')
-        service_drive, cliente_gspread = autenticarGoogleAPI(self)
-        time.sleep(1)
         self.enviar_mensagem('Buscando informações essenciais para iniciar.')
-        dadosBaseCadastro, dadosBaseAnalise = atualizarBase(planilhaID, cliente_gspread, self)
-        idPastaMesAnterior = BuscarPastaMesAnterior(service_drive, diretorioBaseDrive, self)
-        pastas = listarArquivosDrive(service_drive, idPastaMesAnterior)
         time.sleep(1)
-        self.enviar_mensagem('Todas as informações foram obtdas com sucesso!')
-        time.sleep(1)
-        self.enviar_mensagem('Vou iniciar as análises.')
-
-        for pasta in pastas:
-            idProfessor, nomeProfessor = identificacao(pasta['name'])
-            idPastaProfessor = pasta['id']
+        try:
+            dadosBaseCadastro, dadosBaseAnalise = atualizarBase(planilhaID, self.cliente_gspread, self)
+            idPastaMesAnterior = BuscarPastaMesAnterior(self.service_drive, diretorioBaseDrive, self)
+            pastas = listarArquivosDrive(self.service_drive, idPastaMesAnterior)
             time.sleep(1)
-            self.enviar_mensagem(f'Verificando os documentos do(a) professor(a) {idProfessor} - {nomeProfessor}.')
-            downloadsTemp = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'Downloads')
-            if os.path.exists(downloadsTemp):
-                shutil.rmtree(downloadsTemp)
+            self.enviar_mensagem('Todas as informações foram obtdas com sucesso!')
+            time.sleep(1)
+            self.enviar_mensagem('Vou iniciar as análises.')
 
-            if str(idProfessor) in dadosBaseAnalise:
-                status = dadosBaseAnalise[str(idProfessor)].get("Documentos estão aptos para seguir para pagamento?", "Status não encontrado")
-                if status == 'Apto':
-                    self.enviar_mensagem('O(a) professor(a) está com o status de APTO na planilha, por isso não irei analisar.\nVou para o próximo da lista.')
-                    continue
-                if status == 'Inapto':
-                    self.enviar_mensagem('O(a) professor(a) está com o status de INAPTO na planilha, por isso não irei analisar.\nVou para o próximo da lista.')
-                    continue
+            for pasta in pastas:
+                idProfessor, nomeProfessor = identificacao(pasta['name'])
+                idPastaProfessor = pasta['id']
+                time.sleep(1)
+                self.enviar_mensagem(f'Consultando cadastro de:\n<b>ID:</b> {idProfessor}. <b>Nome:</b> {nomeProfessor}.')
+                downloadsTemp = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'Downloads')
+                if os.path.exists(downloadsTemp):
+                    shutil.rmtree(downloadsTemp)
 
-                time.sleep(1)
-                self.enviar_mensagem('Fazendo o download dos documentos.')
-                os.makedirs(downloadsTemp, exist_ok=True)
-                arquivos = listarArquivosDrive(service_drive, idPastaProfessor)
-                baixarTodosArquivos(service_drive, arquivos, downloadsTemp, self)
-                time.sleep(1)
+                if str(idProfessor) in dadosBaseAnalise:
+                    status = dadosBaseAnalise[str(idProfessor)].get("Documentos estão aptos para seguir para pagamento?")
+                    if status == 'Apto':
+                        self.enviar_mensagem('Seu status está definido como APTO na planilha, por isso não irei analisar.\nVou para o próximo da lista.')
+                        continue
+                    if status == 'Inapto':
+                        self.enviar_mensagem('Seu status está definido como INAPTO na planilha, por isso não irei analisar.\nVou para o próximo da lista.')
+                        continue
 
-                validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID, self)
-                time.sleep(1)
-                validarCNDU(service_drive, cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID, self)
-                time.sleep(1)
-                validarCNDT(service_drive, cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID, self)
-                time.sleep(1)
-                validarCRF(service_drive, cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID, self)
-                time.sleep(1)
-                validarCNDE_PR(service_drive, cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID, self)
-                time.sleep(1)
-                validarMunicipiosPR(service_drive, cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID, self)
-                time.sleep(1)
-                validarAtividades(service_drive, cliente_gspread, dadosBaseCadastro, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID, self)
+                    time.sleep(1)
+                    self.enviar_mensagem('Fazendo o download dos documentos.')
+                    os.makedirs(downloadsTemp, exist_ok=True)
+                    arquivos = listarArquivosDrive(self.service_drive, idPastaProfessor)
+                    baixarTodosArquivos(self.service_drive, arquivos, downloadsTemp, self)
+                    time.sleep(1)
 
-                time.sleep(1)
-                self.enviar_mensagem(f'Terminei os documentos deste professor(a)')
+                    self.enviar_mensagem('Analisando os documentos.')
+                    validarNFSE(self.service_drive, self.cliente_gspread, dadosBaseCadastro, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+                    time.sleep(1)
+                    validarCNDU(self.service_drive, self.cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+                    time.sleep(1)
+                    validarCNDT(self.service_drive, self.cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+                    time.sleep(1)
+                    validarCRF(self.service_drive, self.cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+                    time.sleep(1)
+                    validarCNDE_PR(self.service_drive, self.cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+                    time.sleep(1)
+                    validarMunicipiosPR(self.service_drive, self.cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+                    time.sleep(1)
+                    validarAtividades(self.service_drive, self.cliente_gspread, dadosBaseCadastro, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
 
-        time.sleep(1)
-        self.enviar_mensagem('Verificação concluída! Todos os professores disponíveis foram analisados com sucesso.')
-        time.sleep(1)
-        self.enviar_mensagem('Se houver novos documentos podemos reiniciar a análise ou podemos somente encerrar.')
-        time.sleep(1)
-        self.enviar_mensagem('O que quer fazer?')
-        time.sleep(1)
-        self.adicionar_botao('btn-reiniciar-analise', 'Reiniciar análise', 'window.pywebview.api.iniciar_analise()')
-        self.adicionar_botao('btn-encerrar', 'Encerrar', 'showTelaConfirmacao()')
+                    time.sleep(1)
+                    self.enviar_mensagem(f'Terminei os documentos deste professor(a)')
+
+            time.sleep(1)
+            self.enviar_mensagem('Verificação concluída! Todos os professores disponíveis foram analisados com sucesso.')
+            time.sleep(1)
+            self.enviar_mensagem('Se houver novos documentos podemos reiniciar a análise ou podemos somente encerrar.')
+            time.sleep(1)
+            self.enviar_mensagem('O que quer fazer?')
+            time.sleep(1)
+            self.adicionar_botao('btn-reiniciar-analise', 'Reiniciar análise', 'window.pywebview.api.iniciar_analise()')
+            self.adicionar_botao('btn-encerrar', 'Encerrar', 'showTelaConfirmacao()')
+        except:
+            self.enviar_mensagem('Gostaria de tentar novamente?')
+            self.adicionar_botao('btn-reiniciar-analise', 'Reiniciar análise', 'window.pywebview.api.iniciar_analise()')
 
 def iniciar_interface():
     largura = 800
     altura = 600
     api = NexusAPI()
+
+    service_drive, cliente_gspread = autenticarGoogleAPI(api)
+    api.service_drive = service_drive
+    api.cliente_gspread = cliente_gspread
+
     window = webview.create_window('Nexus - Assistente Virtual', 'interface\\index.html', width=largura, height=altura, frameless= True, resizable=False)
     api.window = window
     window.expose(api.enviar_mensagem, api.iniciar_analise, api.encerramento, api.minimizar_tela)

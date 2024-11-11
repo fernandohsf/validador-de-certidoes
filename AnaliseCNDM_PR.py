@@ -17,8 +17,7 @@ def importarFuncoes(modulos, prefixo):
             print(f"Erro ao importar módulo {modulo}: {e}")
     return funcoes
 
-def validarMunicipiosPR(service_drive, cliente_gspread, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID, nexusApi):
-    nexusApi.enviar_mensagem('Iniciando análise de CNDM (Certidão negativa de débitos Municipais).')
+def validarMunicipiosPR(service_drive, cliente_gspread, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID):
     data = datetime.today()
 
     ### IMPORTANDO AS FUNÇÕES DOS MUNICIPIOS DO PARANÁ
@@ -153,4 +152,3 @@ def validarMunicipiosPR(service_drive, cliente_gspread, pastaDownload, idPasta, 
                 observacao = observacao + 'Certidão CNDM não é jurídica ou CNPJ inválido. '
 
             lancamentoControle(idProfessor, 'H', valido, observacao, '', '', cliente_gspread, planilhaID)
-    nexusApi.enviar_mensagem('Análise concluída.')

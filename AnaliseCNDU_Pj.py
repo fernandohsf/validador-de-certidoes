@@ -6,8 +6,7 @@ from MunicipiosPR.Interacoes.validade import verificarDataValidade
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
 from googleDrive import renomearArquivoDrive
 
-def validarCNDU(service_drive, cliente_gspread, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID, nexusApi):
-    nexusApi.enviar_mensagem('Iniciando análise da CNDU (Certidão negativa de débitos da União).')
+def validarCNDU(service_drive, cliente_gspread, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID):
     data = datetime.today()
 
     for arquivo in os.listdir(pastaDownload):
@@ -62,4 +61,3 @@ def validarCNDU(service_drive, cliente_gspread, pastaDownload, idPasta, idProfes
                 observacao = observacao + 'Certidão CNDU não é jurídica ou CNPJ inválido. '
 
             lancamentoControle(idProfessor, 'I', valido, observacao, '', '', cliente_gspread, planilhaID)
-    nexusApi.enviar_mensagem('Análise concluída.')

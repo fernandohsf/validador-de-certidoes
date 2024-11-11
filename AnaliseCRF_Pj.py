@@ -6,8 +6,7 @@ from MunicipiosPR.Interacoes.validade import verificarDataValidade
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
 from googleDrive import renomearArquivoDrive
 
-def validarCRF(service_drive, cliente_gspread, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID, nexusApi):
-    nexusApi.enviar_mensagem('Iniciando análise da CRF (Certidão de regularidade FGTS).')
+def validarCRF(service_drive, cliente_gspread, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID):
     data = datetime.today()
 
     for arquivo in os.listdir(pastaDownload):
@@ -64,4 +63,3 @@ def validarCRF(service_drive, cliente_gspread, pastaDownload, idPasta, idProfess
                 observacao = observacao + 'Certidão CRF não é jurídica ou CNPJ inválido. '
 
             lancamentoControle(idProfessor, 'K', valido, observacao ,'', '', cliente_gspread, planilhaID)
-    nexusApi.enviar_mensagem('Análise concluída.')

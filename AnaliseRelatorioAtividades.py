@@ -7,8 +7,7 @@ from datetime import datetime
 from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
 from googleDrive import renomearArquivoDrive
 
-def validarAtividades(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID, nexusApi):
-    nexusApi.enviar_mensagem('Iniciando análise do relatório de atividades.')
+def validarAtividades(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID):
     locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
     data = datetime.today()
 
@@ -129,4 +128,3 @@ def validarAtividades(service_drive, cliente_gspread, dadosBaseCadastro, pastaDo
                 observacao = observacao + 'Verificar o número da nota no relatório de atividades. '
 
             lancamentoControle(idProfessor, 'M', valido, observacao, '', numeroNota, cliente_gspread, planilhaID)
-    nexusApi.enviar_mensagem('Análise concluída.')
