@@ -86,7 +86,7 @@ hidden_imports = [
 ]
 
 build_exe_options = {
-    "packages": ["fitz", "xlsxwriter", "google_auth_oauthlib", "googleapiclient", "gspread", "webview"],
+    "packages": ["os", "sys", "time", "shutil", "win32gui", "fitz", "xlsxwriter", "google_auth_oauthlib", "googleapiclient", "gspread", "webview"],
     "excludes": [],
     "include_files": [
         'D:/AutomacaoFapec/Professor formador/credenciais_google.json',
