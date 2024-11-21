@@ -36,3 +36,28 @@ document.getElementById("botao-confirmar").onclick = function () {
 document.getElementById("botao-cancelar").onclick = function () {
     closeTelaConfirmacao();
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+    const barraTitulo = document.getElementById('barra-titulo');
+    let isDragging = false;
+
+    barraTitulo.addEventListener('mousedown', (e) => {
+        if (e.button === 0) { // Verifica se é o botão esquerdo do mouse
+            isDragging = true;
+            pywebview.api.start_drag(e.screenX, e.screenY);
+        }
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            pywebview.api.drag(e.screenX, e.screenY);
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            pywebview.api.stop_drag();
+        }
+    });
+});

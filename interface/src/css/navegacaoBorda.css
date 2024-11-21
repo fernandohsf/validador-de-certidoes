@@ -1,11 +1,24 @@
 #menu {
-    top: 5px;
-    right: 5px;
+    top: 0;
+    right: 0;
     position: absolute;
-    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border-bottom: 1px solid white;
+    padding: 5px;
+}
+
+#barra-titulo {
+    width: 715px;
+    height: 30px;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    cursor: move;
+    font-family: 'Hanken Grotesk', 'sans-serif';
+    font-weight: bold;
 }
 
 .botao-menu {
@@ -18,7 +31,6 @@
     cursor: pointer;
     transition: ease-out 0.4s;
     position: relative;
-    margin-left: 5px;
 }
 
 .botao-menu:hover {
@@ -26,6 +38,7 @@
 }
 
 .minimizar{
+    margin-right: 5px;
     background-color: #EB9532;
     border: 2px solid #EB9532;
 }

@@ -3,6 +3,9 @@ import sys
 import time
 import shutil
 import webview 
+import win32gui
+import win32con
+import win32api
 from AnaliseNfse import validarNFSE
 from AnaliseCRF_Pj import validarCRF
 from AnaliseCNDT_Pj import validarCNDT
@@ -16,6 +19,31 @@ from googleDrive import autenticarGoogleAPI, baixarTodosArquivos, listarArquivos
 class NexusAPI:
     def __init__(self):
         self.window = None
+        self.hwnd = None  # Inicializa o hwnd
+        self.is_dragging = False  # Inicializa o atributo is_dragging
+    
+    def set_window_handle(self):
+        # Define o handle da janela do PyWebview
+        self.hwnd = win32gui.FindWindow(None, "Nexus - Assistente Virtual")
+
+    def start_drag(self, x, y):
+        if not self.hwnd:
+            self.set_window_handle()
+
+        # Obtém a posição atual da janela
+        rect = win32gui.GetWindowRect(self.hwnd)
+        self.offset_x = x - rect[0]
+        self.offset_y = y - rect[1]
+        self.is_dragging = True
+
+    def drag(self, x, y):
+        if self.is_dragging and self.hwnd:
+            largura = win32gui.GetWindowRect(self.hwnd)[2] - win32gui.GetWindowRect(self.hwnd)[0]
+            altura = win32gui.GetWindowRect(self.hwnd)[3] - win32gui.GetWindowRect(self.hwnd)[1]
+            win32gui.MoveWindow(self.hwnd, x - self.offset_x, y - self.offset_y, largura, altura, True)
+
+    def stop_drag(self):
+        self.is_dragging = False
 
     def enviar_mensagem(self, mensagem):
         if self.window:
@@ -134,9 +162,9 @@ def iniciar_interface():
     api.service_drive = service_drive
     api.cliente_gspread = cliente_gspread
 
-    window = webview.create_window('Nexus - Assistente Virtual', 'interface\\index.html', width=largura, height=altura, frameless= True, resizable=False)
+    window = webview.create_window('Nexus - Assistente Virtual', 'interface\\index.html', width=largura, height=altura, frameless=True, resizable=False)
     api.window = window
-    window.expose(api.enviar_mensagem, api.iniciar_analise, api.encerramento, api.minimizar_tela)
+    window.expose(api.start_drag, api.drag, api.stop_drag, api.enviar_mensagem, api.iniciar_analise, api.encerramento, api.minimizar_tela)
     window.events.loaded += api.saudacao
     webview.start()
 
