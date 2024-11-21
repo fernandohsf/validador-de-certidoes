@@ -1,8 +1,8 @@
 #mensagens {
     width: 500px;
-    max-height: 550px;
+    max-height: 520px;
     overflow-y: auto;
-    margin: 0 auto;
+    margin-top: 40px;
     padding: 10px;
     text-align: center;
     font-size: 1.2em;

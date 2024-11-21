@@ -13,8 +13,7 @@
     width: 715px;
     height: 30px;
     color: white;
-    display: flex;
-    align-items: center;
+    align-content: center;
     padding-left: 10px;
     cursor: move;
     font-family: 'Hanken Grotesk', 'sans-serif';
