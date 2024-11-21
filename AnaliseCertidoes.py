@@ -4,8 +4,6 @@ import time
 import shutil
 import webview 
 import win32gui
-import win32con
-import win32api
 from AnaliseNfse import validarNFSE
 from AnaliseCRF_Pj import validarCRF
 from AnaliseCNDT_Pj import validarCNDT
@@ -23,7 +21,7 @@ class NexusAPI:
         self.is_dragging = False  # Inicializa o atributo is_dragging
     
     def set_window_handle(self):
-        # Define o handle da janela do PyWebview
+        # Define o handle da janela do PyWebview usando o título
         self.hwnd = win32gui.FindWindow(None, "Nexus - Assistente Virtual")
 
     def start_drag(self, x, y):
