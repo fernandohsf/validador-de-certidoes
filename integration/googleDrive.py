@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import gspread
+from datetime import date
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
 from googleapiclient.http import MediaIoBaseDownload
@@ -34,7 +35,7 @@ def baixarTodosArquivos(service, arquivos, pastaTemp, nexusApi):
         if not arquivo['name'].lower().endswith('.pdf'):
             continue
 
-        arquivoTemp = os.path.join(pastaTemp, f'{arquivo['id']}.pdf')
+        arquivoTemp = os.path.join(pastaTemp, f"{arquivo['id']}.pdf")
         try:
             request = service.files().get_media(fileId=arquivo['id'])
             with open(arquivoTemp, "wb") as fh:
@@ -79,3 +80,53 @@ def arquivoExiste(service, nomeArquivo, idPasta):
     resultados = service.files().list(q=query, fields="files(id, name)").execute()
     arquivos = resultados.get('files', [])
     return len(arquivos) > 0
+
+def buscarPasta(service, nomePasta, idPastaPai=None):
+    query = f"name = '{nomePasta}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
+    if idPastaPai:
+        query += f" and '{idPastaPai}' in parents"
+
+    resultados = service.files().list(q=query, fields="files(id, name)").execute()
+    arquivos = resultados.get('files', [])
+    
+    if arquivos:
+        return arquivos[0]['id']  # Retorna o ID da primeira pasta encontrada
+    return None
+
+def BuscarPastaMesAnterior(service, idDiretorioBase, nexusApi):
+    nexusApi.enviar_mensagem('Informações do google drive...')
+    anoVigente = date.today().year
+    mesAnterior = date.today().month-1
+    anoAbreviado = date.today().strftime('%y')
+    mes = ['Dez', 'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov']
+
+    # Buscar a pasta do ano corrente ou anterior (caso o mês seja janeiro)
+    pastaAnual = anoVigente if mesAnterior != 0 else anoVigente - 1
+    
+    idPastaAnual = buscarPasta(service, str(pastaAnual), idPastaPai=idDiretorioBase)
+    if not idPastaAnual:
+        nexusApi.enviar_mensagem(f"Pasta do ano {pastaAnual} não encontrada.")
+        return None
+    
+    idPastaAnalise = buscarPasta(service, 'Análise de Documentos' ,idPastaPai=idPastaAnual)
+    if not idPastaAnalise:
+        nexusApi.enviar_mensagem("Pasta 'Análise de Documentos' não encontrada.")
+        return None
+    
+    idPastaEmail = buscarPasta(service, 'e-Mail', idPastaPai=idPastaAnalise)
+    if not idPastaEmail:
+        nexusApi.enviar_mensagem("Pasta 'e-Mail' não encontrada.")
+        return None    
+    
+    for mesPasta in mes:
+        if mesAnterior == 0:
+            nome_pasta = f'{mesPasta}/{int(anoAbreviado) - 1}'
+            break
+        if mesAnterior == mes.index(mesPasta):
+            nome_pasta = f'{mesPasta}/{anoAbreviado}'
+            break
+    
+    idPastaMesAnterior = buscarPasta(service, nome_pasta, idPastaPai=idPastaEmail)
+
+    nexusApi.enviar_mensagem('Feito.')    
+    return idPastaMesAnterior

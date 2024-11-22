@@ -3,8 +3,8 @@ import re
 import fitz
 import calendar
 from datetime import datetime
-from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
-from googleDrive import renomearArquivoDrive
+from integration.ExcelDrive import lancamentoControle
+from integration.googleDrive import renomearArquivoDrive
 
 def validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID):
     data = datetime.today()

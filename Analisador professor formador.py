@@ -4,15 +4,16 @@ import time
 import shutil
 import webview 
 import win32gui
-from AnaliseNfse import validarNFSE
-from AnaliseCRF_Pj import validarCRF
-from AnaliseCNDT_Pj import validarCNDT
-from AnaliseCNDU_Pj import validarCNDU
-from AnaliseCNDE_PR_Pj import validarCNDE_PR
-from AnaliseCNDM_PR import validarMunicipiosPR
-from AnaliseRelatorioAtividades import validarAtividades
-from Utils import BuscarPastaMesAnterior, atualizarBase, identificacao
-from googleDrive import autenticarGoogleAPI, baixarTodosArquivos, listarArquivosDrive
+from Utils import identificacao
+from integration.googleDrive import BuscarPastaMesAnterior, autenticarGoogleAPI, baixarTodosArquivos, listarArquivosDrive
+from repository.sheetsRepository import atualizarBase
+from services.AnaliseCNDE_PR_Pj import validarCNDE_PR
+from services.AnaliseCNDM_PR import validarMunicipiosPR
+from services.AnaliseCNDT_Pj import validarCNDT
+from services.AnaliseCNDU_Pj import validarCNDU
+from services.AnaliseCRF_Pj import validarCRF
+from services.AnaliseNfse import validarNFSE
+from services.AnaliseRelatorioAtividades import validarAtividades
 
 class NexusAPI:
     def __init__(self):
@@ -160,7 +161,7 @@ def iniciar_interface():
     api.service_drive = service_drive
     api.cliente_gspread = cliente_gspread
 
-    window = webview.create_window('Nexus - Assistente Virtual', 'interface\\index.html', width=largura, height=altura, frameless=True, resizable=False)
+    window = webview.create_window('Nexus - Assistente Virtual', 'web\\index.html', width=largura, height=altura, frameless=True, resizable=False)
     api.window = window
     window.expose(api.start_drag, api.drag, api.stop_drag, api.enviar_mensagem, api.iniciar_analise, api.encerramento, api.minimizar_tela)
     window.events.loaded += api.saudacao

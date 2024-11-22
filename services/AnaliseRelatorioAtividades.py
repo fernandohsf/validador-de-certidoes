@@ -4,8 +4,8 @@ import locale
 import calendar
 import fitz
 from datetime import datetime
-from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
-from googleDrive import renomearArquivoDrive
+from integration.ExcelDrive import lancamentoControle
+from integration.googleDrive import renomearArquivoDrive
 
 def validarAtividades(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID):
     locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')

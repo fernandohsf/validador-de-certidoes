@@ -2,9 +2,9 @@ import os
 import re
 import fitz
 from datetime import datetime
-from MunicipiosPR.Interacoes.validade import verificarDataValidade
-from MunicipiosPR.Excel.ExcelDrive import lancamentoControle
-from googleDrive import renomearArquivoDrive
+from Utils import verificarDataValidade
+from integration.ExcelDrive import lancamentoControle
+from integration.googleDrive import renomearArquivoDrive
 
 def validarCNDU(service_drive, cliente_gspread, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID):
     data = datetime.today()

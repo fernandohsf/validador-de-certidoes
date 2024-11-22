@@ -90,21 +90,21 @@ build_exe_options = {
     "excludes": [],
     "include_files": [
         'D:/AutomacaoFapec/Professor formador/credenciais_google.json',
-        ('D:/AutomacaoFapec/Professor formador/interface/index.html', 'interface/index.html'),
-        ('D:/AutomacaoFapec/Professor formador/interface/src/css/mensagens.css', 'interface/src/css/mensagens.css'),
-        ('D:/AutomacaoFapec/Professor formador/interface/src/css/navegacaoBorda.css', 'interface/src/css/navegacaoBorda.css'),
-        ('D:/AutomacaoFapec/Professor formador/interface/src/css/nexus.css', 'interface/src/css/nexus.css'),
-        ('D:/AutomacaoFapec/Professor formador/interface/src/css/reset.css', 'interface/src/css/reset.css'),
-        ('D:/AutomacaoFapec/Professor formador/interface/src/imagens/Fapec-logo.png', 'interface/src/imagens/Fapec-logo.png'),
-        ('D:/AutomacaoFapec/Professor formador/interface/src/js/index.js', 'interface/src/js/index.js')
+        ('D:/AutomacaoFapec/Professor formador/web/index.html', 'web/index.html'),
+        ('D:/AutomacaoFapec/Professor formador/web/src/css/mensagens.css', 'web/src/css/mensagens.css'),
+        ('D:/AutomacaoFapec/Professor formador/web/src/css/navegacaoBorda.css', 'web/src/css/navegacaoBorda.css'),
+        ('D:/AutomacaoFapec/Professor formador/web/src/css/nexus.css', 'web/src/css/nexus.css'),
+        ('D:/AutomacaoFapec/Professor formador/web/src/css/reset.css', 'web/src/css/reset.css'),
+        ('D:/AutomacaoFapec/Professor formador/web/src/imagens/Fapec-logo.png', 'web/src/imagens/Fapec-logo.png'),
+        ('D:/AutomacaoFapec/Professor formador/web/src/js/index.js', 'web/src/js/index.js')
         ],
     "includes": hidden_imports
 }
 
 setup(
-    name="Análise de certidões negativas de débitos",
+    name="Análisador de certidões projeto professor formador",
     version="4.0",
-    description="Análise de certidões negativas de débitos.",
+    description="Análise de certidões negativas de débitos, nota fiscal de serviço e relatório de atividades.",
     options={"build_exe": build_exe_options},
-    executables=[Executable("AnaliseCertidoes.py", base="Win32GUI")]
+    executables=[Executable("Analisador professor formador.py.py", base="Win32GUI")]
 )
