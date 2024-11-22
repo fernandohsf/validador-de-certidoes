@@ -2,18 +2,18 @@ import os
 import re
 import fitz
 from datetime import datetime
-from Utils import verificarDataValidade
-from integration.ExcelDrive import lancamentoControle
-from integration.googleDrive import renomearArquivoDrive
+from Utils import verificar_data_validade
+from integration.excel_drive import lancamento_controle
+from integration.google_drive import renomear_arquivo_drive
 
-def validarCNDU(service_drive, cliente_gspread, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID):
+def validar_CNDU(service_drive, cliente_gspread, pasta_download, id_pasta, id_professor, nome_professor, planilha_ID):
     data = datetime.today()
 
-    for arquivo in os.listdir(pastaDownload):
-        cnpj = dataValidade = observacao = valido = '-'
+    for arquivo in os.listdir(pasta_download):
+        cnpj = data_validade = observacao = valido = '-'
 
         try:
-            pdf = fitz.open(os.path.join(pastaDownload, arquivo))
+            pdf = fitz.open(os.path.join(pasta_download, arquivo))
             conteudo = ''
             if pdf.page_count != 1:
                 continue
@@ -31,11 +31,11 @@ def validarCNDU(service_drive, cliente_gspread, pastaDownload, idPasta, idProfes
             valido = 'Sim'
             observacao = ''
 
-            novoNome = f"02-CNDU {nomeProfessor}.pdf"
-            novoNome, duplicado = renomearArquivoDrive(service_drive, os.path.splitext(arquivo)[0], novoNome, idPasta)
+            novo_nome = f"02-CNDU {nome_professor}.pdf"
+            novo_nome, duplicado = renomear_arquivo_drive(service_drive, os.path.splitext(arquivo)[0], novo_nome, id_pasta)
             if duplicado:
                 observacao += 'Existem arquivos de CNDU duplicados. '
-                lancamentoControle(idProfessor, 'I', '', observacao, '', '', cliente_gspread, planilhaID)
+                lancamento_controle(id_professor, 'I', '', observacao, '', '', cliente_gspread, planilha_ID)
                 continue
 
             conteudo = re.sub('\xa0', ' ', conteudo)
@@ -46,11 +46,11 @@ def validarCNDU(service_drive, cliente_gspread, pastaDownload, idPasta, idProfes
                     cnpj = linha.split(': ')[-1].strip()
                     
                 if('Válida até' in linha):  
-                    dataValidade = linha.strip().split(' ')[-1].replace('.', '')
-                    dataValidade = datetime.strptime(dataValidade,'%d/%m/%Y')
+                    data_validade = linha.strip().split(' ')[-1].replace('.', '')
+                    data_validade = datetime.strptime(data_validade,'%d/%m/%Y')
 
             try:
-                valido = verificarDataValidade(data, dataValidade, valido)
+                valido = verificar_data_validade(data, data_validade, valido)
                 if(valido == 'Não'):
                     observacao += 'Verificar validade da Certidão CNDU. '
             except:
@@ -60,4 +60,4 @@ def validarCNDU(service_drive, cliente_gspread, pastaDownload, idPasta, idProfes
                 valido = 'Não'
                 observacao = observacao + 'Certidão CNDU não é jurídica ou CNPJ inválido. '
 
-            lancamentoControle(idProfessor, 'I', valido, observacao, '', '', cliente_gspread, planilhaID)
+            lancamento_controle(id_professor, 'I', valido, observacao, '', '', cliente_gspread, planilha_ID)

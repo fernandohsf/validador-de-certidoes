@@ -5,15 +5,15 @@ import shutil
 import webview 
 import win32gui
 from Utils import identificacao
-from integration.googleDrive import BuscarPastaMesAnterior, autenticarGoogleAPI, baixarTodosArquivos, listarArquivosDrive
-from repository.sheetsRepository import atualizarBase
-from services.AnaliseCNDE_PR_Pj import validarCNDE_PR
-from services.AnaliseCNDM_PR import validarMunicipiosPR
-from services.AnaliseCNDT_Pj import validarCNDT
-from services.AnaliseCNDU_Pj import validarCNDU
-from services.AnaliseCRF_Pj import validarCRF
-from services.AnaliseNfse import validarNFSE
-from services.AnaliseRelatorioAtividades import validarAtividades
+from integration.google_drive import buscar_pasta_mes_anterior, autenticar_google_API, baixar_todos_arquivos, listar_arquivos_drive
+from repository.sheets_repository import atualizar_base
+from services.Analise_CNDE_PR_Pj import validar_CNDE_PR
+from services.Analise_CNDM_PR import validar_Municipios_PR
+from services.Analise_CNDT_Pj import validar_CNDT
+from services.Analise_CNDU_Pj import validar_CNDU
+from services.Analise_CRF_Pj import validar_CRF
+from services.Analise_Nfse import validar_NFSE
+from services.Analise_relatorio_atividades import validar_atividades
 
 class NexusAPI:
     def __init__(self):
@@ -80,33 +80,33 @@ class NexusAPI:
 
     def iniciar_analise(self):
         self.window.evaluate_js('document.getElementById("btn-iniciar-analise").disabled = true;')
-        #planilhaID = '1L_GtpCUd3_2uNGj8l64s7zr41ajyBUxxtxtVhQ5inLk' # Produção
-        #diretorioBaseDrive = '1ZinjciG-RUIi_cZxZzi2k-4YaNgm1Gft' # Produção
-        planilhaID = '1GSSDC9MOqEp3AuQJGe1DD9vV9Crdk7vHQGX9jhlPjOk' # Homologação
-        diretorioBaseDrive = '1yq5i3L1tHrztWPTiSVrwYKSFgpEy9DDl' # Homologação
+        #planilha_ID = '1L_GtpCUd3_2uNGj8l64s7zr41ajyBUxxtxtVhQ5inLk' # Produção
+        #diretorio_base_drive = '1ZinjciG-RUIi_cZxZzi2k-4YaNgm1Gft' # Produção
+        planilha_ID = '1GSSDC9MOqEp3AuQJGe1DD9vV9Crdk7vHQGX9jhlPjOk' # Homologação
+        diretorio_base_drive = '1yq5i3L1tHrztWPTiSVrwYKSFgpEy9DDl' # Homologação
 
         self.enviar_mensagem('Buscando informações essenciais para iniciar.')
         time.sleep(1)
         try:
-            dadosBaseCadastro, dadosBaseAnalise = atualizarBase(planilhaID, self.cliente_gspread, self)
-            idPastaMesAnterior = BuscarPastaMesAnterior(self.service_drive, diretorioBaseDrive, self)
-            pastas = listarArquivosDrive(self.service_drive, idPastaMesAnterior)
+            dados_base_cadastro, dados_base_analise = atualizar_base(planilha_ID, self.cliente_gspread, self)
+            id_pasta_mes_anterior = buscar_pasta_mes_anterior(self.service_drive, diretorio_base_drive, self)
+            pastas = listar_arquivos_drive(self.service_drive, id_pasta_mes_anterior)
             time.sleep(1)
             self.enviar_mensagem('Todas as informações foram obtdas com sucesso!')
             time.sleep(1)
             self.enviar_mensagem('Vou iniciar as análises.')
 
             for pasta in pastas:
-                idProfessor, nomeProfessor = identificacao(pasta['name'])
-                idPastaProfessor = pasta['id']
+                id_professor, nome_professor = identificacao(pasta['name'])
+                id_pasta_professor = pasta['id']
                 time.sleep(1)
-                self.enviar_mensagem(f'Consultando cadastro de:\n<b>ID:</b> {idProfessor}. <b>Nome:</b> {nomeProfessor}.')
-                downloadsTemp = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'Downloads')
-                if os.path.exists(downloadsTemp):
-                    shutil.rmtree(downloadsTemp)
+                self.enviar_mensagem(f'Consultando cadastro de:\n<b>ID:</b> {id_professor}. <b>Nome:</b> {nome_professor}.')
+                downloads_temp = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'Downloads')
+                if os.path.exists(downloads_temp):
+                    shutil.rmtree(downloads_temp)
 
-                if str(idProfessor) in dadosBaseAnalise:
-                    status = dadosBaseAnalise[str(idProfessor)].get("Documentos estão aptos para seguir para pagamento?")
+                if str(id_professor) in dados_base_analise:
+                    status = dados_base_analise[str(id_professor)].get("Documentos estão aptos para seguir para pagamento?")
                     if status == 'Apto':
                         self.enviar_mensagem('Seu status está definido como APTO na planilha, por isso não irei analisar.\nVou para o próximo da lista.')
                         continue
@@ -116,25 +116,25 @@ class NexusAPI:
 
                     time.sleep(1)
                     self.enviar_mensagem('Fazendo o download dos documentos.')
-                    os.makedirs(downloadsTemp, exist_ok=True)
-                    arquivos = listarArquivosDrive(self.service_drive, idPastaProfessor)
-                    baixarTodosArquivos(self.service_drive, arquivos, downloadsTemp, self)
+                    os.makedirs(downloads_temp, exist_ok=True)
+                    arquivos = listar_arquivos_drive(self.service_drive, id_pasta_professor)
+                    baixar_todos_arquivos(self.service_drive, arquivos, downloads_temp, self)
                     time.sleep(1)
 
                     self.enviar_mensagem('Analisando os documentos.')
-                    validarNFSE(self.service_drive, self.cliente_gspread, dadosBaseCadastro, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+                    validar_NFSE(self.service_drive, self.cliente_gspread, dados_base_cadastro, downloads_temp, id_pasta_professor, id_professor, nome_professor, planilha_ID)
                     time.sleep(1)
-                    validarCNDU(self.service_drive, self.cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+                    validar_CNDU(self.service_drive, self.cliente_gspread, downloads_temp, id_pasta_professor, id_professor, nome_professor, planilha_ID)
                     time.sleep(1)
-                    validarCNDT(self.service_drive, self.cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+                    validar_CNDT(self.service_drive, self.cliente_gspread, downloads_temp, id_pasta_professor, id_professor, nome_professor, planilha_ID)
                     time.sleep(1)
-                    validarCRF(self.service_drive, self.cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+                    validar_CRF(self.service_drive, self.cliente_gspread, downloads_temp, id_pasta_professor, id_professor, nome_professor, planilha_ID)
                     time.sleep(1)
-                    validarCNDE_PR(self.service_drive, self.cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+                    validar_CNDE_PR(self.service_drive, self.cliente_gspread, downloads_temp, id_pasta_professor, id_professor, nome_professor, planilha_ID)
                     time.sleep(1)
-                    validarMunicipiosPR(self.service_drive, self.cliente_gspread, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+                    validar_Municipios_PR(self.service_drive, self.cliente_gspread, downloads_temp, id_pasta_professor, id_professor, nome_professor, planilha_ID)
                     time.sleep(1)
-                    validarAtividades(self.service_drive, self.cliente_gspread, dadosBaseCadastro, downloadsTemp, idPastaProfessor, idProfessor, nomeProfessor, planilhaID)
+                    validar_atividades(self.service_drive, self.cliente_gspread, dados_base_cadastro, downloads_temp, id_pasta_professor, id_professor, nome_professor, planilha_ID)
 
                     time.sleep(1)
                     self.enviar_mensagem(f'Terminei os documentos deste professor(a)')
@@ -157,7 +157,7 @@ def iniciar_interface():
     altura = 600
     api = NexusAPI()
 
-    service_drive, cliente_gspread = autenticarGoogleAPI(api)
+    service_drive, cliente_gspread = autenticar_google_API(api)
     api.service_drive = service_drive
     api.cliente_gspread = cliente_gspread
 

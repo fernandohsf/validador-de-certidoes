@@ -6,7 +6,7 @@ def identificacao(pasta):
     nomeEmissor = pasta[1]
     return id, nomeEmissor
 
-def verificarDataValidade(data, dataValidade, valido):
+def verificar_data_validade(data, dataValidade, valido):
     try:
         if(dataValidade < data):
             valido = 'Não'

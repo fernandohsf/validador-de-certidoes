@@ -1,23 +1,23 @@
 import os
 import fitz
 from datetime import datetime
-from Utils import verificarDataValidade
-from integration.ExcelDrive import lancamentoControle
-from integration.googleDrive import renomearArquivoDrive
+from Utils import verificar_data_validade
+from integration.excel_drive import lancamento_controle
+from integration.google_drive import renomear_arquivo_drive
 
-def importarFuncoes(modulos, prefixo):
+def importar_funcoes(modulos, prefixo):
     funcoes = {}
 
     for modulo in modulos:
         try:
-            moduloImportado = __import__(modulo, fromlist=['']) 
-            funcoesModulo = {nome: getattr(moduloImportado, nome) for nome in dir(moduloImportado) if nome.startswith(prefixo) and callable(getattr(moduloImportado, nome))}
-            funcoes.update(funcoesModulo)
+            modulo_importado = __import__(modulo, fromlist=['']) 
+            funcoes_modulo = {nome: getattr(modulo_importado, nome) for nome in dir(modulo_importado) if nome.startswith(prefixo) and callable(getattr(modulo_importado, nome))}
+            funcoes.update(funcoes_modulo)
         except ImportError as e:
             print(f"Erro ao importar módulo {modulo}: {e}")
     return funcoes
 
-def validarMunicipiosPR(service_drive, cliente_gspread, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID):
+def validar_Municipios_PR(service_drive, cliente_gspread, pasta_download, id_pasta, id_professor, nome_professor, planilha_ID):
     data = datetime.today()
 
     ### IMPORTANDO AS FUNÇÕES DOS MUNICIPIOS DO PARANÁ
@@ -105,13 +105,13 @@ def validarMunicipiosPR(service_drive, cliente_gspread, pastaDownload, idPasta, 
 	    'MunicipiosPR.AnaliseVirmond',
 	    'MunicipiosPR.AnaliseVitorino'
     ]
-    funcoes = importarFuncoes(modulos, 'validar')
+    funcoes = importar_funcoes(modulos, 'validar')
 
-    for arquivo in os.listdir(pastaDownload):
-        cnpj = dataValidade = observacao = valido = '-' 
+    for arquivo in os.listdir(pasta_download):
+        cnpj = data_validade = observacao = valido = '-' 
 
         try:
-            pdf = fitz.open(os.path.join(pastaDownload, arquivo))
+            pdf = fitz.open(os.path.join(pasta_download, arquivo))
             conteudo = ''
             if pdf.page_count > 2:
                 continue
@@ -128,20 +128,20 @@ def validarMunicipiosPR(service_drive, cliente_gspread, pastaDownload, idPasta, 
         observacao = ''
 
         ### VALIDANDO O ARQUIVO EM CADA MUNICIPIO
-        for nomeFuncao, funcao in funcoes.items():
-            cnpj, dataValidade = funcao(conteudo)
-            if(cnpj == '-' or dataValidade == '-'):
+        for nome_funcao, funcao in funcoes.items():
+            cnpj, data_validade = funcao(conteudo)
+            if(cnpj == '-' or data_validade == '-'):
                 continue
 
-            novoNome = f"06-CNDM {nomeProfessor}.pdf"
-            novoNome, duplicado = renomearArquivoDrive(service_drive, os.path.splitext(arquivo)[0], novoNome, idPasta)
+            novo_nome = f"06-CNDM {nome_professor}.pdf"
+            novo_nome, duplicado = renomear_arquivo_drive(service_drive, os.path.splitext(arquivo)[0], novo_nome, id_pasta)
             if duplicado:
                 observacao += 'Existem arquivos de CNDM duplicados. '
-                lancamentoControle(idProfessor, 'H', '', observacao, '', '', cliente_gspread, planilhaID)
+                lancamento_controle(id_professor, 'H', '', observacao, '', '', cliente_gspread, planilha_ID)
                 continue
 
             try:
-                valido = verificarDataValidade(data, dataValidade, valido)
+                valido = verificar_data_validade(data, data_validade, valido)
                 if(valido == 'Não'):
                     observacao += 'Verificar validade da Certidão CNDM. '
             except:
@@ -151,4 +151,4 @@ def validarMunicipiosPR(service_drive, cliente_gspread, pastaDownload, idPasta, 
                 valido = 'Não'
                 observacao = observacao + 'Certidão CNDM não é jurídica ou CNPJ inválido. '
 
-            lancamentoControle(idProfessor, 'H', valido, observacao, '', '', cliente_gspread, planilhaID)
+            lancamento_controle(id_professor, 'H', valido, observacao, '', '', cliente_gspread, planilha_ID)

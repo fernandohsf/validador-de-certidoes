@@ -4,21 +4,21 @@ import locale
 import calendar
 import fitz
 from datetime import datetime
-from integration.ExcelDrive import lancamentoControle
-from integration.googleDrive import renomearArquivoDrive
+from integration.excel_drive import lancamento_controle
+from integration.google_drive import renomear_arquivo_drive
 
-def validarAtividades(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID):
+def validar_atividades(service_drive, cliente_gspread, dados_base_cadastro, pasta_download, id_pasta, id_professor, nome_professor, planilha_ID):
     locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
     data = datetime.today()
 
-    for arquivo in os.listdir(pastaDownload):
-        periodo = cnpj = dataAssinatura = numeroNota = valido = '-'
+    for arquivo in os.listdir(pasta_download):
+        periodo = cnpj = data_assinatura = numero_nota = valido = '-'
         observacao = ''
-        cnpjBase = finalMesAnterior = None
+        cnpj_base = final_mes_anterior = None
         observador = 0
 
         try:
-            pdf = fitz.open(os.path.join(pastaDownload, arquivo))
+            pdf = fitz.open(os.path.join(pasta_download, arquivo))
             conteudo = ''
             for page in pdf:
                 conteudo += page.get_text()
@@ -28,20 +28,20 @@ def validarAtividades(service_drive, cliente_gspread, dadosBaseCadastro, pastaDo
 
         if('RELATÓRIO DE PRESTAÇÃO DE SERVIÇOS' in conteudo or 'ELATÓRIO DE PRESTAÇÃO DE SERVIÇOS' in conteudo):    
 
-            novoNome = f"07-RELATÓRIO {nomeProfessor}.pdf"
-            novoNome, duplicado = renomearArquivoDrive(service_drive, os.path.splitext(arquivo)[0], novoNome, idPasta)
+            novo_nome = f"07-RELATÓRIO {nome_professor}.pdf"
+            novo_nome, duplicado = renomear_arquivo_drive(service_drive, os.path.splitext(arquivo)[0], novo_nome, id_pasta)
             if duplicado:
                 observacao += 'Existem arquivos de relatório de atividades duplicados. '
-                lancamentoControle(idProfessor, 'M', '', observacao, '', '', cliente_gspread, planilhaID)
+                lancamento_controle(id_professor, 'M', '', observacao, '', '', cliente_gspread, planilha_ID)
                 continue
 
             conteudo = re.sub('\xa0', ' ', conteudo)
             conteudo = re.split('\n', conteudo)
             valido = 'Sim'
 
-            for id_linha, linha in dadosBaseCadastro.items():
-                if(int(id_linha) == idProfessor):
-                    cnpjBase = linha.get('CNPJ')
+            for id_linha, linha in dados_base_cadastro.items():
+                if(int(id_linha) == id_professor):
+                    cnpj_base = linha.get('CNPJ')
                     break
 
             for i, linha in enumerate(conteudo):
@@ -64,16 +64,16 @@ def validarAtividades(service_drive, cliente_gspread, dadosBaseCadastro, pastaDo
                     if(mes == 0):
                         mes = 12
                         ano -=1
-                    mesAnterior = datetime(ano, mes, 1)
-                    finalMesAnterior = datetime(ano, mes, calendar.monthrange(ano, mes)[1])
+                    mes_anterior = datetime(ano, mes, 1)
+                    final_mes_anterior = datetime(ano, mes, calendar.monthrange(ano, mes)[1])
 
-                    if(mesAnterior.strftime('%BDE%Y').upper() in periodo
-                    or mesAnterior.strftime('%B%Y').upper() in periodo
-                    or f'{mesAnterior.strftime("%d/%m/%Y")}A{finalMesAnterior.strftime("%d/%m/%Y")}' in periodo
-                    or f'{mesAnterior.strftime("%d/%m/%Y")}À{finalMesAnterior.strftime("%d/%m/%Y")}' in periodo
-                    or f'{mesAnterior.strftime("%d/%m/%Y")}Á{finalMesAnterior.strftime("%d/%m/%Y")}' in periodo
-                    or f'{mesAnterior.strftime("%d/%m/%Y")}ATÉ{finalMesAnterior.strftime("%d/%m/%Y")}' in periodo
-                    or f'{mesAnterior.strftime("%d/%m")}A{finalMesAnterior.strftime("%d/%mDE%Y")}' in periodo):
+                    if(mes_anterior.strftime('%BDE%Y').upper() in periodo
+                    or mes_anterior.strftime('%B%Y').upper() in periodo
+                    or f'{mes_anterior.strftime("%d/%m/%Y")}A{final_mes_anterior.strftime("%d/%m/%Y")}' in periodo
+                    or f'{mes_anterior.strftime("%d/%m/%Y")}À{final_mes_anterior.strftime("%d/%m/%Y")}' in periodo
+                    or f'{mes_anterior.strftime("%d/%m/%Y")}Á{final_mes_anterior.strftime("%d/%m/%Y")}' in periodo
+                    or f'{mes_anterior.strftime("%d/%m/%Y")}ATÉ{final_mes_anterior.strftime("%d/%m/%Y")}' in periodo
+                    or f'{mes_anterior.strftime("%d/%m")}A{final_mes_anterior.strftime("%d/%mDE%Y")}' in periodo):
                         observador +=1
                     
                 if any(palavra in linha for palavra in 
@@ -88,25 +88,25 @@ def validarAtividades(service_drive, cliente_gspread, dadosBaseCadastro, pastaDo
                         'Guarapuava,',
                         'Ivaiporã,',
                         ]):
-                    dataAssinatura = linha.replace('.', '').replace('_', '').split(',')[-1].strip().upper()
+                    data_assinatura = linha.replace('.', '').replace('_', '').split(',')[-1].strip().upper()
 
                     try:
-                        dataAssinatura = datetime.strptime(dataAssinatura, '%d DE %B DE %Y')
-                        if(dataAssinatura < finalMesAnterior):
+                        data_assinatura = datetime.strptime(data_assinatura, '%d DE %B DE %Y')
+                        if(data_assinatura < final_mes_anterior):
                             valido = 'Não'
                             observacao = observacao + 'Verificar data de assinatura no relatório de atividades. '
-                        dataAssinatura = dataAssinatura.strftime('%d de %B de %Y')
+                        data_assinatura = data_assinatura.strftime('%d de %B de %Y')
                     except:
                         valido = 'Não'
                         observacao = observacao + 'Verificar data de assinatura no relatório de atividades. '
                 
                 if('N.º' in linha or 'Nº' in linha or 'N°' in linha or 'N.o' in linha):
                     try:
-                        numeroNota = linha.split(':')[1].strip()
-                        numeroNota = re.search(r'\d+', numeroNota).group()
-                        if(len(numeroNota) == 50):
-                            numeroNota = numeroNota[24:36]
-                        numeroNota = int(numeroNota)
+                        numero_nota = linha.split(':')[1].strip()
+                        numero_nota = re.search(r'\d+', numero_nota).group()
+                        if(len(numero_nota) == 50):
+                            numero_nota = numero_nota[24:36]
+                        numero_nota = int(numero_nota)
                     except:
                         valido = 'Não'
                         observacao = observacao + 'Verificar o número da nota no relatório de atividades. '    
@@ -115,16 +115,16 @@ def validarAtividades(service_drive, cliente_gspread, dadosBaseCadastro, pastaDo
                 valido = 'Não'
                 observacao = observacao + 'Verificar data de realização no relatório de atividades. '
 
-            if(cnpj != cnpjBase):
+            if(cnpj != cnpj_base):
                 valido = 'Não'
                 observacao = observacao + 'Verificar CNPJ no relatório de atividades. '
             
-            if(dataAssinatura == '-'):
+            if(data_assinatura == '-'):
                 valido = 'Não'
                 observacao = observacao + 'Verificar data de assinatura no relatório de atividades. '
 
-            if(numeroNota == '-'):
+            if(numero_nota == '-'):
                 valido = 'Não'
                 observacao = observacao + 'Verificar o número da nota no relatório de atividades. '
 
-            lancamentoControle(idProfessor, 'M', valido, observacao, '', numeroNota, cliente_gspread, planilhaID)
+            lancamento_controle(id_professor, 'M', valido, observacao, '', numero_nota, cliente_gspread, planilha_ID)

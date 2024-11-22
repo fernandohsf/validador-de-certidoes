@@ -1,10 +1,10 @@
 from datetime import datetime
 
-def lancamentoControle(idProfessor, letraControle, valido, observacao, valorNota, numeroNota, cliente_gspread,planilhaID):
+def lancamento_controle(id_professor, letra_controle, valido, observacao, valor_nota, numero_nota, cliente_gspread, planilha_ID):
     data = datetime.today().strftime('%d/%m/%Y')
 
     try:
-        planilha = cliente_gspread.open_by_key(planilhaID).worksheet('Disponível para Análise')
+        planilha = cliente_gspread.open_by_key(planilha_ID).worksheet('Disponível para Análise')
     except Exception as e:
         print(f"Erro ao acessar a planilha: {e}")
         return {}
@@ -13,7 +13,7 @@ def lancamentoControle(idProfessor, letraControle, valido, observacao, valorNota
     mapaId = {cell: index for index, cell in enumerate(planilha.col_values(1), start=1)}
 
     # Obtém o índice da linha correspondente ao ID
-    index = mapaId.get(str(idProfessor))
+    index = mapaId.get(str(id_professor))
 
     if index is None:
         return
@@ -22,18 +22,18 @@ def lancamentoControle(idProfessor, letraControle, valido, observacao, valorNota
 
     try:
         if not observacao == 'Existem arquivos de NFSE duplicados. ':
-            if letraControle == 'L':                
+            if letra_controle == 'L':                
                 updates.append({
                     'range': f'P{index}',  # Status da coluna P
                     'values': [['Em análise']]
                 })
                 updates.append({
-                    'range': f'{letraControle}{index}',  # Valor da nota na coluna L
-                    'values': [[valorNota]]
+                    'range': f'{letra_controle}{index}',  # Valor da nota na coluna L
+                    'values': [[valor_nota]]
                 })
                 updates.append({
                     'range': f'Z{index}',  # Número da nota na coluna Z
-                    'values': [[numeroNota]]
+                    'values': [[numero_nota]]
                 })
                 if observacao != 'Existem arquivos de NFSE duplicados. ':
                     updates.append({
@@ -42,12 +42,12 @@ def lancamentoControle(idProfessor, letraControle, valido, observacao, valorNota
                     })
             else:
                 updates.append({
-                    'range': f'{letraControle}{index}',  # Atualizar a célula correspondente à letra de controle
+                    'range': f'{letra_controle}{index}',  # Atualizar a célula correspondente à letra de controle
                     'values': [[valido]]
                 })
 
-        if letraControle == 'M':
-            if planilha.cell(index, 26).value != '' and planilha.cell(index, 26).value != str(numeroNota): # Z
+        if letra_controle == 'M':
+            if planilha.cell(index, 26).value != '' and planilha.cell(index, 26).value != str(numero_nota): # Z
                 observacao += 'O Número da NFS-e no relatório de atividades está diferente da nota. '
 
             # Verifica se tem todos os 7 documentos

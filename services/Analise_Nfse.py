@@ -3,18 +3,18 @@ import re
 import fitz
 import calendar
 from datetime import datetime
-from integration.ExcelDrive import lancamentoControle
-from integration.googleDrive import renomearArquivoDrive
+from integration.excel_drive import lancamento_controle
+from integration.google_drive import renomear_arquivo_drive
 
-def validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID):
+def validar_NFSE(service_drive, cliente_gspread, dados_base_cadastro, pasta_download, id_pasta, id_professor, nome_professor, planilha_ID):
     data = datetime.today()
 
-    for arquivo in os.listdir(pastaDownload):
-        observacao = valorNota = cnpj = tomador = cnae = valorNota = numeroNota = '-'
-        cnpjBase = valorReceber = None
+    for arquivo in os.listdir(pasta_download):
+        observacao = valor_nota = cnpj = tomador = cnae = valor_nota = numero_nota = '-'
+        cnpj_base = valor_receber = None
 
         try:
-            pdf = fitz.open(os.path.join(pastaDownload, arquivo))
+            pdf = fitz.open(os.path.join(pasta_download, arquivo))
             conteudo = ''
             if pdf.page_count != 1:
                 continue
@@ -30,32 +30,32 @@ def validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload
         if('Documento Auxiliar da NFS-e' in conteudo):
             observacao = ''
             valido = 'Sim'
-            observadorClausula = observadorPeriodo = observadorConta = 0
+            observador_clausula = observador_periodo = observador_conta = 0
 
-            novoNome = f"01-NFSE {nomeProfessor}.pdf"
-            novoNome, duplicado = renomearArquivoDrive(service_drive, os.path.splitext(arquivo)[0], novoNome, idPasta)
+            novo_nome = f"01-NFSE {nome_professor}.pdf"
+            novo_nome, duplicado = renomear_arquivo_drive(service_drive, os.path.splitext(arquivo)[0], novo_nome, id_pasta)
             if duplicado:
                 observacao += 'Existem arquivos de NFSE duplicados. '
-                lancamentoControle(idProfessor, 'L', '', observacao, '', '', cliente_gspread, planilhaID)
+                lancamento_controle(id_professor, 'L', '', observacao, '', '', cliente_gspread, planilha_ID)
                 continue
 
             conteudo = re.sub('\xa0', ' ', conteudo)
             conteudo = re.split('\n', conteudo)
 
-            for id_linha, linha in dadosBaseCadastro.items():
-                if(int(id_linha) == idProfessor):
-                    cnpjBase = linha.get('CNPJ')
-                    valorReceber = linha.get('Valor a receber')
+            for id_linha, linha in dados_base_cadastro.items():
+                if(int(id_linha) == id_professor):
+                    cnpj_base = linha.get('CNPJ')
+                    valor_receber = linha.get('Valor a receber')
                     break
             
             for i, linha in enumerate(conteudo):
                 if ('Chave de Acesso da NFS-e' in linha):
-                    chaveAcesso = conteudo[i+1].strip()
-                    if(len(chaveAcesso) != 50):
-                        chaveAcesso = conteudo[i+3].strip()
+                    chave_acesso = conteudo[i+1].strip()
+                    if(len(chave_acesso) != 50):
+                        chave_acesso = conteudo[i+3].strip()
 
                 if('Número da NFS-e' in linha):
-                    numeroNota = conteudo[i+1]   
+                    numero_nota = conteudo[i+1]   
 
                 if('Prestador do Serviço' in linha):
                     cnpj = conteudo[i+2].strip() 
@@ -93,15 +93,15 @@ def validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload
                         observacao = observacao + 'CNAE incorreto na NFS-e. '
 
                 if('Valor Líquido da NFS-e' in linha):
-                    valorNota = conteudo[i+1].split(' ')[-1].replace('.', '').replace(',', '.').strip()
-                    if(valorReceber is not None):
-                        valorReceber = valorReceber.replace('.', '').replace(',', '.').strip()
-                        if(float(valorNota) != float(valorReceber)):
+                    valor_nota = conteudo[i+1].split(' ')[-1].replace('.', '').replace(',', '.').strip()
+                    if(valor_receber is not None):
+                        valor_receber = valor_receber.replace('.', '').replace(',', '.').strip()
+                        if(float(valor_nota) != float(valor_receber)):
                             valido = 'Não'
                             observacao = observacao + 'O valor total da nota difere do valor cadastrado. '
                     else:
                         observacao = observacao + 'Sem valor a receber informado na planilha Cadastro. '
-                    valorNota = valorNota.replace('.', ',')
+                    valor_nota = valor_nota.replace('.', ',')
 
                 if('ATIVIDADES DESCRITAS NA CLÁUSULA PRIMEIRA D' in linha.upper() 
                     or 'ATIVIDADES DESCRITAS NA CLAUSULA PRIMEIRA D' in linha.upper()
@@ -111,7 +111,7 @@ def validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload
                     or 'DESCRITAS NA CLÁUSULA PRIMEIRA DO CONTRATO' in linha.upper()
                     or 'DESCRITAS NA CLAUSULA PRIMEIRA DO CONTRATO' in linha.upper()
                     or 'DESCRITO NA CLAUSULA PRIMEIRA DO CONTRATO' in linha.upper()):
-                    observadorClausula += 1
+                    observador_clausula += 1
 
                 if('PERÍODO DE REALIZAÇÃO' in linha.upper()
                     or 'PERIODO DE REALIZAÇÃO' in linha.upper()
@@ -127,41 +127,41 @@ def validarNFSE(service_drive, cliente_gspread, dadosBaseCadastro, pastaDownload
                     if(mes == 0):
                         mes = 12
                         ano -=1
-                    mesAnterior = datetime(ano, mes, 1)
-                    finalMesAnterior = datetime(ano, mes, calendar.monthrange(ano, mes)[1])
+                    mes_anterior = datetime(ano, mes, 1)
+                    final_mes_anterior = datetime(ano, mes, calendar.monthrange(ano, mes)[1])
 
-                    if(mesAnterior.strftime('%BDE%Y').upper() in periodo
-                    or mesAnterior.strftime('%B%Y').upper() in periodo
-                    or f'{mesAnterior.strftime("%d/%m/%Y")}A{finalMesAnterior.strftime("%d/%m/%Y")}' in periodo
-                    or f'{mesAnterior.strftime("%d/%m/%Y")}À{finalMesAnterior.strftime("%d/%m/%Y")}' in periodo
-                    or f'{mesAnterior.strftime("%d/%m/%Y")}Á{finalMesAnterior.strftime("%d/%m/%Y")}' in periodo
-                    or f'{mesAnterior.strftime("%d/%m/%Y")}ATÉ{finalMesAnterior.strftime("%d/%m/%Y")}' in periodo
-                    or f'{mesAnterior.strftime("%d/%m")}A{finalMesAnterior.strftime("%d/%mDE%Y")}' in periodo):
-                        observadorPeriodo += 1
+                    if(mes_anterior.strftime('%BDE%Y').upper() in periodo
+                    or mes_anterior.strftime('%B%Y').upper() in periodo
+                    or f'{mes_anterior.strftime("%d/%m/%Y")}A{final_mes_anterior.strftime("%d/%m/%Y")}' in periodo
+                    or f'{mes_anterior.strftime("%d/%m/%Y")}À{final_mes_anterior.strftime("%d/%m/%Y")}' in periodo
+                    or f'{mes_anterior.strftime("%d/%m/%Y")}Á{final_mes_anterior.strftime("%d/%m/%Y")}' in periodo
+                    or f'{mes_anterior.strftime("%d/%m/%Y")}ATÉ{final_mes_anterior.strftime("%d/%m/%Y")}' in periodo
+                    or f'{mes_anterior.strftime("%d/%m")}A{final_mes_anterior.strftime("%d/%mDE%Y")}' in periodo):
+                        observador_periodo += 1
 
                 if('AGÊNCIA' in linha.upper() or 'AGENCIA' in linha.upper() or 'AG:' in linha.upper()):
                     conta = conteudo[i:i+3]
                     for linha2 in conta:
                         if('CONTA' in linha2.upper()):
-                            observadorConta += 1 
+                            observador_conta += 1 
 
             if(cnpj == ''):
                 observacao = observacao + 'Verificar CNPJ na NFS-e. '
 
-            if(cnpj != cnpjBase):
+            if(cnpj != cnpj_base):
                 valido = 'Não'
                 observacao = observacao + 'Verificar CNPJ na NFS-e. '
 
-            if(observadorClausula == 0):
+            if(observador_clausula == 0):
                 valido = 'Não'
                 observacao = observacao + 'Verificar a referência a cláusula do contrato na descrição da NFSE. '
             
-            if(observadorPeriodo == 0):
+            if(observador_periodo == 0):
                 valido = 'Não'
                 observacao = observacao + 'Verificar o período de realização na descrição da NFS-e.'
 
-            if(observadorConta == 0):
+            if(observador_conta == 0):
                 valido = 'Não'
                 observacao = observacao + 'Verificar a agência e conta na descrição da NFS-e.'
 
-            lancamentoControle(idProfessor, 'L', valido, observacao, valorNota, numeroNota, cliente_gspread, planilhaID)
+            lancamento_controle(id_professor, 'L', valido, observacao, valor_nota, numero_nota, cliente_gspread, planilha_ID)

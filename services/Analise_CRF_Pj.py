@@ -2,18 +2,18 @@ import os
 import re
 import fitz
 from datetime import datetime
-from Utils import verificarDataValidade
-from integration.ExcelDrive import lancamentoControle
-from integration.googleDrive import renomearArquivoDrive
+from Utils import verificar_data_validade
+from integration.excel_drive import lancamento_controle
+from integration.google_drive import renomear_arquivo_drive
 
-def validarCRF(service_drive, cliente_gspread, pastaDownload, idPasta, idProfessor, nomeProfessor, planilhaID):
+def validar_CRF(service_drive, cliente_gspread, pasta_download, id_pasta, id_professor, nome_professor, planilha_ID):
     data = datetime.today()
 
-    for arquivo in os.listdir(pastaDownload):
-        cnpj = dataValidade = observacao = '-'
+    for arquivo in os.listdir(pasta_download):
+        cnpj = data_validade = observacao = '-'
 
         try:
-            pdf = fitz.open(os.path.join(pastaDownload, arquivo))
+            pdf = fitz.open(os.path.join(pasta_download, arquivo))
             conteudo = ''
             if pdf.page_count != 1:
                 continue
@@ -33,11 +33,11 @@ def validarCRF(service_drive, cliente_gspread, pastaDownload, idPasta, idProfess
             valido = 'Sim'
             observacao = ''
 
-            novoNome = f"04-CRF {nomeProfessor}.pdf"
-            novoNome, duplicado = renomearArquivoDrive(service_drive, os.path.splitext(arquivo)[0], novoNome, idPasta)
+            novo_nome = f"04-CRF {nome_professor}.pdf"
+            novo_nome, duplicado = renomear_arquivo_drive(service_drive, os.path.splitext(arquivo)[0], novo_nome, id_pasta)
             if duplicado:
                 observacao += 'Existem arquivos de CRF duplicados. '
-                lancamentoControle(idProfessor, 'K', '', observacao, '', '', cliente_gspread, planilhaID)
+                lancamento_controle(id_professor, 'K', '', observacao, '', '', cliente_gspread, planilha_ID)
                 continue
 
             conteudo = re.sub('\xa0', ' ', conteudo)
@@ -48,11 +48,11 @@ def validarCRF(service_drive, cliente_gspread, pastaDownload, idPasta, idProfess
                     cnpj = conteudo[i+1].strip()
 
                 if('Validade:' in linha):
-                    dataValidade = linha.strip().split(' ')[-1].strip()
-                    dataValidade = datetime.strptime(dataValidade,'%d/%m/%Y')
+                    data_validade = linha.strip().split(' ')[-1].strip()
+                    data_validade = datetime.strptime(data_validade,'%d/%m/%Y')
 
             try:
-                valido = verificarDataValidade(data, dataValidade, valido)
+                valido = verificar_data_validade(data, data_validade, valido)
                 if(valido == 'Não'):
                     observacao += 'Verificar validade da Certidão CRF. '
             except:
@@ -62,4 +62,4 @@ def validarCRF(service_drive, cliente_gspread, pastaDownload, idPasta, idProfess
                 valido = 'Não'
                 observacao = observacao + 'Certidão CRF não é jurídica ou CNPJ inválido. '
 
-            lancamentoControle(idProfessor, 'K', valido, observacao ,'', '', cliente_gspread, planilhaID)
+            lancamento_controle(id_professor, 'K', valido, observacao ,'', '', cliente_gspread, planilha_ID)
